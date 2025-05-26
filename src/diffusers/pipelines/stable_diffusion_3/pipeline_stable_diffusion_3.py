@@ -301,6 +301,10 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         tokenizer = clip_tokenizers[clip_model_index]
         text_encoder = clip_text_encoders[clip_model_index]
 
+        print(tokenizer)
+        print(text_encoder)
+        fd
+
         prompt = [prompt] if isinstance(prompt, str) else prompt
         batch_size = len(prompt)
 
@@ -420,6 +424,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 scale_lora_layers(self.text_encoder_2, lora_scale)
 
         prompt = [prompt] if isinstance(prompt, str) else prompt
+
         if prompt is not None:
             batch_size = len(prompt)
         else:
