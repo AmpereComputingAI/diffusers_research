@@ -314,6 +314,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             truncation=True,
             return_tensors="pt",
         )
+        print(text_inputs)
 
         text_input_ids = text_inputs.input_ids
         untruncated_ids = tokenizer(tracer, prompt, padding="longest", return_tensors="pt").input_ids
