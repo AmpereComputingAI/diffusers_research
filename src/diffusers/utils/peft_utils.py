@@ -117,6 +117,7 @@ def scale_lora_layers(model, weight):
 
     for module in model.modules():
         if isinstance(module, BaseTunerLayer):
+            raise NotImplementedError("tracing not implemented")
             module.scale_layer(weight)
 
 
