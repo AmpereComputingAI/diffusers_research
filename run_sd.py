@@ -63,6 +63,7 @@ class Data:
 
 
 class Op:
+    name = None
     def __init__(self, inp, out, condition_stack, loop_stack):
         self.location = traceback.extract_stack()[-4]
         self.input = {key: Data(value) for key, value in inp.items()}
@@ -72,19 +73,21 @@ class Op:
 
 
 class TorchTensor(Op):
+    name = "torch.tensor"
     def __init__(self, inp, out, condition_stack, loop_stack):
         super().__init__(inp, out, condition_stack, loop_stack)
 
 
 class IsTensor(Op):
+    name = "torch.is_tensor"
     def __init__(self, inp, out, condition_stack, loop_stack):
         super().__init__(inp, out, condition_stack, loop_stack)
 
 
-ops = {
-    "torch.tensor": TorchTensor,
-    "torch.is_tensor": IsTensor
-}
+ops = {op.name: op for op in [
+    TorchTensor,
+    IsTensor
+]}
 
 
 class Tracer:
@@ -134,7 +137,18 @@ def main():
     ).images[0]
     image.save("hyrax.png")
 
-    print(tracer.condition_stack)
+    for op in tracer.ops:
+        print("------")
+        print(op.name)
+        print(op.location)
+        print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
+        print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
+        print("Conditions:")
+        for cond in op.condition_stack:
+            print(cond.condition)
+        print("Loops:")
+        for loop in op.loop_stack:
+            print(loop.body, loop.iter)
 
 
 if __name__ == "__main__":
