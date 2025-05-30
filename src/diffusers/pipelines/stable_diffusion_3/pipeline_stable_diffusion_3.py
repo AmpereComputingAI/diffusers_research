@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import inspect
-from run_sd import Tracer
+#from run_sd import Tracer
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
@@ -288,7 +288,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
     def _get_clip_prompt_embeds(
         self,
-        tracer: Tracer,
+        tracer,
         prompt: Union[str, List[str]],
         num_images_per_prompt: int = 1,
         device: Optional[torch.device] = None,
@@ -344,7 +344,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
     def encode_prompt(
         self,
-        tracer: Tracer,
+        tracer,
         prompt: Union[str, List[str]],
         prompt_2: Union[str, List[str]],
         prompt_3: Union[str, List[str]],
