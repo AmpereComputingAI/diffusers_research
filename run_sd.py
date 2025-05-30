@@ -1,9 +1,11 @@
+import traceback
+
 import torch
 from diffusers import StableDiffusion3Pipeline
 
 
 class Condition:
-    def __init__(self, condition, operands):
+    def __init__(self, condition: str, operands: dict):
         self.condition = condition
         self.operands = operands
 
@@ -13,11 +15,12 @@ class Tracer:
         self.ops = []
         self.condition_stack = []
 
-    def add_condition(self, condition, operands):
+    def add_condition(self, condition: str, operands: dict):
+        print(traceback.extract_stack())
         self.condition_stack.append(Condition(condition, operands))
         return len(self.condition_stack)
 
-    def reset_condition_stack(self, idx):
+    def reset_condition_stack(self, idx: int):
         self.condition_stack = self.condition_stack[:idx-1]
 
     def vomit(self):

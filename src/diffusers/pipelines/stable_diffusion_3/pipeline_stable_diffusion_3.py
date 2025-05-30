@@ -306,7 +306,6 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         prompt = [prompt] if isinstance(prompt, str) else prompt
         batch_size = len(prompt)
 
-        print(tokenizer)
         text_inputs = tokenizer(
             tracer,
             prompt,
@@ -469,6 +468,8 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
             prompt_embeds = torch.cat([clip_prompt_embeds, t5_prompt_embed], dim=-2)
             pooled_prompt_embeds = torch.cat([pooled_prompt_embed, pooled_prompt_2_embed], dim=-1)
+
+            tracer.reset_condition_stack(idx)
 
         if do_classifier_free_guidance and negative_prompt_embeds is None:
             negative_prompt = negative_prompt or ""
