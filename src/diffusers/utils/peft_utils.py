@@ -100,7 +100,7 @@ def recurse_remove_peft_layers(model):
     return model
 
 
-def scale_lora_layers(model, weight):
+def scale_lora_layers(tracer, model, weight):
     """
     Adjust the weightage given to the LoRA layers of the model.
 
@@ -117,7 +117,7 @@ def scale_lora_layers(model, weight):
 
     for module in model.modules():
         if isinstance(module, BaseTunerLayer):
-            raise NotImplementedError("tracing not implemented")
+            tracer.vomit()
             module.scale_layer(weight)
 
 

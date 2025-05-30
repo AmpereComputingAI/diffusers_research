@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import inspect
+from run_sd import Tracer
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import torch
@@ -287,6 +288,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
     def _get_clip_prompt_embeds(
         self,
+        tracer: Tracer,
         prompt: Union[str, List[str]],
         num_images_per_prompt: int = 1,
         device: Optional[torch.device] = None,
@@ -342,6 +344,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
     def encode_prompt(
         self,
+        tracer: Tracer,
         prompt: Union[str, List[str]],
         prompt_2: Union[str, List[str]],
         prompt_3: Union[str, List[str]],
@@ -415,9 +418,9 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
             # dynamically adjust the LoRA scale
             if self.text_encoder is not None and USE_PEFT_BACKEND:
-                scale_lora_layers(self.text_encoder, lora_scale)
+                scale_lora_layers(tracer, self.text_encoder, lora_scale)
             if self.text_encoder_2 is not None and USE_PEFT_BACKEND:
-                scale_lora_layers(self.text_encoder_2, lora_scale)
+                scale_lora_layers(tracer, self.text_encoder_2, lora_scale)
 
         prompt = [prompt] if isinstance(prompt, str) else prompt
         if prompt is not None:
@@ -425,10 +428,8 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         else:
             batch_size = prompt_embeds.shape[0]
 
-        import traceback
-        print(traceback.extract_stack())
-        dsf
         if prompt_embeds is None:
+            idx = tracer.add_condition("prompt_embeds is None", {"prompt_embeds": prompt_embeds})
             prompt_2 = prompt_2 or prompt
             prompt_2 = [prompt_2] if isinstance(prompt_2, str) else prompt_2
 
@@ -436,6 +437,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             prompt_3 = [prompt_3] if isinstance(prompt_3, str) else prompt_3
 
             prompt_embed, pooled_prompt_embed = self._get_clip_prompt_embeds(
+                tracer,
                 prompt=prompt,
                 device=device,
                 num_images_per_prompt=num_images_per_prompt,
@@ -775,6 +777,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
     @replace_example_docstring(EXAMPLE_DOC_STRING)
     def __call__(
         self,
+        tracer,
         prompt: Union[str, List[str]] = None,
         prompt_2: Optional[Union[str, List[str]]] = None,
         prompt_3: Optional[Union[str, List[str]]] = None,
@@ -969,6 +972,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             pooled_prompt_embeds,
             negative_pooled_prompt_embeds,
         ) = self.encode_prompt(
+            tracer,
             prompt=prompt,
             prompt_2=prompt_2,
             prompt_3=prompt_3,
