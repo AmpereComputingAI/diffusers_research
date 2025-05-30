@@ -1,5 +1,5 @@
 import traceback
-
+import inspect
 import torch
 from diffusers import StableDiffusion3Pipeline
 
@@ -8,6 +8,8 @@ class Condition:
     def __init__(self, condition: str, operands: dict):
         self.condition = condition
         self.operands = operands
+        print(inspect.stack()[2])
+        self.location = traceback.extract_stack()[-3]
 
 
 class Tracer:
@@ -16,7 +18,6 @@ class Tracer:
         self.condition_stack = []
 
     def add_condition(self, condition: str, operands: dict):
-        print(traceback.extract_stack())
         self.condition_stack.append(Condition(condition, operands))
         return len(self.condition_stack)
 
