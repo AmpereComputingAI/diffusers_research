@@ -495,6 +495,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 )
 
             negative_prompt_embed, negative_pooled_prompt_embed = self._get_clip_prompt_embeds(
+                tracer,
                 negative_prompt,
                 device=device,
                 num_images_per_prompt=num_images_per_prompt,
@@ -502,6 +503,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 clip_model_index=0,
             )
             negative_prompt_2_embed, negative_pooled_prompt_2_embed = self._get_clip_prompt_embeds(
+                tracer,
                 negative_prompt_2,
                 device=device,
                 num_images_per_prompt=num_images_per_prompt,
