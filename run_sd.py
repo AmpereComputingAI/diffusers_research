@@ -54,7 +54,10 @@ class Data:
             self.meta = {"shape": value.shape, "dtype": value.dtype}
             print(self.meta)
         else:
-            assert False, type(value)
+            self.type = "PythonClass"
+            self.hash = None
+            self.meta = None
+            print(f"!!! {type(value)} !!!")
 
 
 class Op:
