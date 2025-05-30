@@ -1,4 +1,5 @@
 import traceback
+
 import torch
 from diffusers import StableDiffusion3Pipeline
 
@@ -25,7 +26,12 @@ class Data:
     def __init__(self, value):
         if isinstance(value, list):
             self.type = list
-            self.dims = 3
+            self.hash = None
+            self.meta = 2
+        elif value is None:
+            self.type = None
+            self.hash = None
+            self.meta = None
         else:
             assert False, value
 
