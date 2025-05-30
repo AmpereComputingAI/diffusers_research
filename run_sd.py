@@ -1,3 +1,4 @@
+import hashlib
 import traceback
 
 import torch
@@ -22,6 +23,11 @@ class Loop:
         self.iter += 1
 
 
+def hash_tensor(tensor):
+    tensor_bytes = tensor.cpu().contiguous().tobytes()
+    return hashlib.sha256(tensor_bytes).hexdigest()
+
+
 class Data:
     def __init__(self, value):
         if isinstance(value, list):
@@ -40,6 +46,12 @@ class Data:
             self.type = str
             self.hash = None
             self.meta = {"size": len(value)}
+        elif isinstance(value, torch.Tensor):
+            self.type = torch.Tensor
+            self.hash = hash_tensor(value)
+            print(self.hash)
+            self.meta = {"shape": value.shape, "size": value.size}
+            print(self.meta)
         else:
             assert False, type(value)
 
