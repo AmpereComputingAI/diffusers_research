@@ -111,6 +111,9 @@ class Tracer:
     def vomit(self):
         raise NotImplementedError("tracing not implemented")
 
+    def debug(self):
+        print(traceback.extract_stack()[-2])
+
 
 def main():
     pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3.5-large",
