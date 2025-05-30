@@ -24,7 +24,7 @@ class Loop:
 
 
 def hash_tensor(tensor):
-    tensor = tensor.copy()
+    tensor = tensor.clone().detach()
     tensor_bytes = tensor.cpu().contiguous().numpy().tobytes()
     return hashlib.sha256(tensor_bytes).hexdigest()
 
