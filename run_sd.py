@@ -74,8 +74,14 @@ class TorchTensor(Op):
         super().__init__(inp, out, condition_stack, loop_stack)
 
 
+class IsTensor(Op):
+    def __init__(self, inp, out, condition_stack, loop_stack):
+        super().__init__(inp, out, condition_stack, loop_stack)
+
+
 ops = {
-    "torch.tensor": TorchTensor
+    "torch.tensor": TorchTensor,
+    "torch.is_tensor": IsTensor
 }
 
 
