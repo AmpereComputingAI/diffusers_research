@@ -445,6 +445,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 clip_model_index=0,
             )
             prompt_2_embed, pooled_prompt_2_embed = self._get_clip_prompt_embeds(
+                tracer,
                 prompt=prompt_2,
                 device=device,
                 num_images_per_prompt=num_images_per_prompt,
