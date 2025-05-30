@@ -18,7 +18,7 @@ class Loop:
         self.operands = operands
         self.iter = 0
 
-    def iter(self):
+    def iteration(self):
         self.iter += 1
 
 
