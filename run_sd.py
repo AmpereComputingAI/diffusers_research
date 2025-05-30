@@ -53,7 +53,7 @@ class Data:
             self.type = torch.Tensor
             self.hash = hash_tensor(value)
             print(self.hash)
-            self.meta = {"shape": value.shape, "dtype": value.dtype}
+            self.meta = {"shape": value.shape, "dtype": value.dtype, "device": value.device}
             print(self.meta)
         else:
             self.type = "PythonClass"
@@ -64,7 +64,7 @@ class Data:
 
 class Op:
     def __init__(self, inp, out, condition_stack, loop_stack):
-        print(traceback.extract_stack()[-4])
+        self.location = traceback.extract_stack()[-4]
         self.input = {key: Data(value) for key, value in inp.items()}
         self.output = {key: Data(value) for key, value in out.items()}
         self.condition_stack = [condition for condition in condition_stack]
