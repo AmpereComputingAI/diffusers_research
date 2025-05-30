@@ -1,3 +1,5 @@
+import plotly.express as px
+import pandas as pd
 from typing import List
 
 
@@ -7,12 +9,19 @@ class Op:
     def __init__(self):
         pass
 
+    def get_structure(self, idx, parent, structure):
+        raise NotImplementedError
+
 
 class Variable:
-    def __init__(self, dtype, description=None, name=None, value=None):
+    def __init__(self, name, dtype, description=None, value=None):
         self.name = name
         self.dtype = dtype
         self.description = description
+        self.value = value
+
+    def get_info(self):
+        return f"{self.name} <{self.dtype}>"
 
 
 class Graph:
@@ -24,7 +33,7 @@ class Graph:
 
     def add_variable(self, name, dtype, description):
         assert name not in self.variables.keys()
-        self.variables[name] = Variable(name, dtype, description)
+        self.variables[name] = Variable(name=name, dtype=dtype, description=description)
 
     def add_op(self, op):
         assert isinstance(op, Graph) or isinstance(op, Op), op
@@ -33,6 +42,35 @@ class Graph:
 
     def __getitem__(self, item):
         return self.variables[item]
+
+    def get_structure(self, idx=None, parent=None, structure=None):
+        if structure is None:
+            structure = {"labels": [self.name], "ids": [id(self)], "parents": [""]}
+            for i, g in enumerate(self.graph):
+                g.get_structure(i, id(self), structure)
+            print(structure)
+            return pd.DataFrame(structure)
+        else:
+            assert idx is not None and parent is not None
+            if self.name is not None:
+                structure["labels"].append(self.name)
+                structure["ids"].append(id(self))
+                if parent is not None:
+                    structure["parents"].append(parent)
+                else:
+                    structure["parents"].append("")
+                for i, g in enumerate(self.graph):
+                    g.get_structure(i, id(self), structure)
+            else:
+                if len(self.graph) == 1:
+                    self.graph[0].get_structure(idx, parent, structure)
+                else:
+                    for i, g in enumerate(self.graph):
+                        g.get_structure(i, parent, structure)
+
+
+def index(name, idx):
+    return f"[{idx}] {name}"
 
 
 class Conditional(Op):
@@ -45,6 +83,14 @@ class Conditional(Op):
         self.if_branch = None
         self.else_branch = None
 
+    def get_structure(self, idx, parent, structure):
+        structure["labels"].append(f"{index(self.name, idx)}: '{self.condition}', inputs: {[var.get_info() for var in self.variables]}")
+        structure["ids"].append(id(self))
+        structure["parents"].append(parent)
+        self.if_branch.get_structure("if clause", id(self), structure)
+        if self.else_branch is not None:
+            self.else_branch.get_structure("else clause", id(self), structure)
+
 
 class Assign(Op):
     name = "assign"
@@ -54,14 +100,29 @@ class Assign(Op):
         self.variable = variable
         self.value = value
 
+    def get_structure(self, idx, parent, structure):
+        if isinstance(self.value, Op):
+            self.value.get_structure(0, id(self), structure)
+            structure["labels"].append(
+                f"{index(self.name, idx)}: '{self.variable.get_info()} = {self.value.name}'")
+        else:
+            structure["labels"].append(f"{index(self.name, idx)}: '{self.variable.get_info()} = {self.value.get_info()}'")
+        structure["ids"].append(id(self))
+        structure["parents"].append(parent)
+
 
 class PythonBuiltin(Op):
-    name = "python built-in"
+    name = "python built-in function"
     def __init__(self, code: str, variables: List[Variable]):
         super().__init__()
         assert all([type(var) is Variable for var in variables]) and type(variables) is list
         self.code = code
         self.variables = variables
+
+    def get_structure(self, idx, parent, structure):
+        structure["labels"].append(f"{index(self.name, idx)}: '{self.code}', inputs: {[var.get_info() for var in self.variables]}")
+        structure["ids"].append(id(self))
+        structure["parents"].append(parent)
 
 
 class ExternalMethod(Op):
@@ -71,6 +132,12 @@ class ExternalMethod(Op):
         assert all([isinstance(var, Variable) for var in variables]) and type(variables) is list
         self.code = code
         self.variables = variables
+
+    def get_structure(self, idx, parent, structure):
+        structure["labels"].append(
+            f"{index(self.name, idx)}: '{self.code}', inputs: {[var.get_info() for var in self.variables]}")
+        structure["ids"].append(id(self))
+        structure["parents"].append(parent)
 
 
 class TorchTensorShape(Op):
@@ -82,6 +149,12 @@ class TorchTensorShape(Op):
         self.arg = arg
         self.variable = variable
 
+    def get_structure(self, idx, parent, structure):
+        structure["labels"].append(
+            f"{index(self.name, idx)}, arg: {self.arg}, input: {self.variable.get_info()}")
+        structure["ids"].append(id(self))
+        structure["parents"].append(parent)
+
 
 def get_batch_size(g, prompt, prompt_embeds):
     g.add_variable(name="batch_size", dtype="int",
@@ -91,7 +164,7 @@ def get_batch_size(g, prompt, prompt_embeds):
     g = Graph("get batch size")
     conditional_0 = Conditional("prompt is not None and isinstance(prompt, str)", [prompt])
 
-    conditional_0.if_branch = Assign(bs, Variable(dtype="int", value="1"))
+    conditional_0.if_branch = Assign(bs, Variable(name="constant", dtype="int", value="1"))
 
     else_branch = Graph()
     conditional_1 = Conditional("prompt is not None and isinstance(prompt, list)", [prompt])
@@ -112,12 +185,12 @@ def get_lora_scale(g):
                                "layers are loaded.")
     lora_scale = g["lora_scale"]
     joint_attention_kwargs = g.self["_joint_attention_kwargs"]
-    g = Graph("get_lora_scale")
+    g = Graph("get lora scale")
     conditional = Conditional("self.joint_attention_kwargs is not None", [joint_attention_kwargs])
 
     conditional.if_branch = Assign(lora_scale, PythonBuiltin(
         "self.joint_attention_kwargs.get('scale', None)", [joint_attention_kwargs]))
-    conditional.else_branch = Assign(lora_scale, Variable(dtype="None", value="None"))
+    conditional.else_branch = Assign(lora_scale, Variable(name="lora_scale", dtype="None", value="None"))
 
     g.add_op(conditional)
     return g
@@ -236,7 +309,9 @@ def SD3_5():
     g.add_op(get_lora_scale(g))
     g.add_op(encode_prompt(g))
 
-    print([obj.name for obj in g.graph])
+
+    fig = px.treemap(g.get_structure(), names="labels", ids="ids", parents="parents", maxdepth=5)
+    fig.show()
 
 
 if __name__ == "__main__":
