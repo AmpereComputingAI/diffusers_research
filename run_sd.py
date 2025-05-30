@@ -24,6 +24,7 @@ class Loop:
 
 
 def hash_tensor(tensor):
+    tensor = tensor.copy()
     tensor_bytes = tensor.cpu().contiguous().numpy().tobytes()
     return hashlib.sha256(tensor_bytes).hexdigest()
 
@@ -50,7 +51,7 @@ class Data:
             self.type = torch.Tensor
             self.hash = hash_tensor(value)
             print(self.hash)
-            self.meta = {"shape": value.shape, "size": value.size}
+            self.meta = {"shape": value.shape, "dtype": value.dtype}
             print(self.meta)
         else:
             assert False, type(value)
