@@ -49,8 +49,8 @@ class Data:
             self.meta = {"size": len(value)}
         elif isinstance(value, torch.Tensor):
             self.type = torch.Tensor
-            #self.hash = hash_tensor(value)
-            #print(self.hash)
+            self.hash = hash_tensor(value)
+            print(self.hash)
             self.meta = {"shape": value.shape, "dtype": value.dtype}
             print(self.meta)
         else:
