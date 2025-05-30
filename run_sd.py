@@ -27,11 +27,15 @@ class Data:
         if isinstance(value, list):
             self.type = list
             self.hash = None
-            self.meta = 2
+            self.meta = {"dims": None}
         elif value is None:
             self.type = None
             self.hash = None
             self.meta = None
+        elif isinstance(value, bool):
+            self.type = bool
+            self.hash = None
+            self.meta = {"value": value}
         else:
             assert False, value
 
