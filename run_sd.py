@@ -131,6 +131,7 @@ class Tracer:
             print("Loops:")
             for loop in op.loop_stack:
                 print(loop.body, loop.iter)
+                print({key: [val.type, val.hash, val.meta] for key, val in loop.operands.items()})
 
 
 def main():
