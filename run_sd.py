@@ -41,3 +41,7 @@ def main():
     image.save("hyrax.png")
 
     print(tracer.condition_stack)
+
+
+if __name__ == "__main__":
+    main()
