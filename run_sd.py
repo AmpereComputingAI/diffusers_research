@@ -4,6 +4,8 @@ import traceback
 import torch
 from diffusers import StableDiffusion3Pipeline
 
+DEBUG = False
+
 
 class Condition:
     def __init__(self, condition: str, operands: dict):
@@ -112,7 +114,8 @@ class Tracer:
         raise NotImplementedError("tracing not implemented")
 
     def debug(self, text=""):
-        print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
+        if DEBUG:
+            print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
 
 def main():
