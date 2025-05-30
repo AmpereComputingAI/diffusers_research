@@ -1,6 +1,4 @@
 import traceback
-from email.quoprimime import body_encode
-
 import torch
 from diffusers import StableDiffusion3Pipeline
 
@@ -8,18 +6,47 @@ from diffusers import StableDiffusion3Pipeline
 class Condition:
     def __init__(self, condition: str, operands: dict):
         self.condition = condition
-        self.operands = operands
+        self.operands = {key: Data(value) for key, value in operands.items()}
         self.location = traceback.extract_stack()[-3]
 
 
 class Loop:
     def __init__(self, body, operands):
         self.body = body
-        self.operands = operands
+        self.operands = {key: Data(value) for key, value in operands.items()}
+        self.location = traceback.extract_stack()[-3]
         self.iter = 0
 
     def iteration(self):
         self.iter += 1
+
+
+class Data:
+    def __init__(self, value):
+        if isinstance(value, list):
+            self.type = list
+            self.dims = 3
+        else:
+            assert False, value
+
+
+class Op:
+    def __init__(self, inp, out, condition_stack, loop_stack):
+        print(traceback.extract_stack()[-4])
+        self.input = {key: Data(value) for key, value in inp.items()}
+        self.output = {key: Data(value) for key, value in out.items()}
+        self.condition_stack = [condition for condition in condition_stack]
+        self.loop_stack = [loop for loop in loop_stack]
+
+
+class TorchTensor(Op):
+    def __init__(self, inp, out, condition_stack, loop_stack):
+        super().__init__(inp, out, condition_stack, loop_stack)
+
+
+ops = {
+    "torch.tensor": TorchTensor
+}
 
 
 class Tracer:
@@ -42,15 +69,8 @@ class Tracer:
     def reset_condition_stack(self, idx: int):
         self.condition_stack = self.condition_stack[:idx]
 
-    def add_op(self, name, inp, output):
-        print(name)
-        print(inp)
-        print(output)
-        for cond in self.condition_stack:
-            print(cond)
-        for loop in self.loop_stack:
-            print(loop)
-        sd
+    def add_op(self, name, inp, out):
+        self.ops.append(ops[name](inp, out, self.condition_stack, self.loop_stack))
 
     def vomit(self):
         raise NotImplementedError("tracing not implemented")
