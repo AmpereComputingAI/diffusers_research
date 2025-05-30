@@ -111,8 +111,8 @@ class Tracer:
     def vomit(self):
         raise NotImplementedError("tracing not implemented")
 
-    def debug(self):
-        print(f"DEBUG: {traceback.extract_stack()[-2]}")
+    def debug(self, text=""):
+        print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
 
 def main():
