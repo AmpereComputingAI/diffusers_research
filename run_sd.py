@@ -52,9 +52,7 @@ class Data:
         elif isinstance(value, torch.Tensor):
             self.type = torch.Tensor
             self.hash = hash_tensor(value)
-            print(self.hash)
             self.meta = {"shape": value.shape, "dtype": value.dtype, "device": value.device}
-            print(self.meta)
         else:
             self.type = "PythonClass"
             self.hash = None
@@ -120,6 +118,20 @@ class Tracer:
         if DEBUG:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
+    def summary(self):
+        for op in self.ops:
+            print("------")
+            print(op.name)
+            print(op.location)
+            print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
+            print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
+            print("Conditions:")
+            for cond in op.condition_stack:
+                print(cond.condition)
+            print("Loops:")
+            for loop in op.loop_stack:
+                print(loop.body, loop.iter)
+
 
 def main():
     pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3.5-large",
@@ -136,19 +148,6 @@ def main():
         guidance_scale=7
     ).images[0]
     image.save("hyrax.png")
-
-    for op in tracer.ops:
-        print("------")
-        print(op.name)
-        print(op.location)
-        print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
-        print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
-        print("Conditions:")
-        for cond in op.condition_stack:
-            print(cond.condition)
-        print("Loops:")
-        for loop in op.loop_stack:
-            print(loop.body, loop.iter)
 
 
 if __name__ == "__main__":
