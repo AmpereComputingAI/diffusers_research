@@ -112,7 +112,7 @@ class Tracer:
         raise NotImplementedError("tracing not implemented")
 
     def debug(self):
-        print(traceback.extract_stack()[-2])
+        print(f"DEBUG: {traceback.extract_stack()[-2]}")
 
 
 def main():
