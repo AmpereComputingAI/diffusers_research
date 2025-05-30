@@ -36,8 +36,12 @@ class Data:
             self.type = bool
             self.hash = None
             self.meta = {"value": value}
+        elif isinstance(value, str):
+            self.type = str
+            self.hash = None
+            self.meta = {"size": len(value)}
         else:
-            assert False, value
+            assert False, type(value)
 
 
 class Op:
