@@ -306,7 +306,9 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         prompt = [prompt] if isinstance(prompt, str) else prompt
         batch_size = len(prompt)
 
+        print(tokenizer)
         text_inputs = tokenizer(
+            tracer,
             prompt,
             padding="max_length",
             max_length=self.tokenizer_max_length,
