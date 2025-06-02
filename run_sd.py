@@ -239,7 +239,10 @@ ops = {op.name: op for op in [
     OnesLike,
     Tril,
     TensorExpand,
-    TensorTo
+    TensorTo,
+    LayerNorm,
+    Linear,
+    TensorTranspose
 ]}
 
 
