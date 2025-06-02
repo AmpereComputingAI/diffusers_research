@@ -66,12 +66,10 @@ class Data:
             self.type = tuple
             self.hash = None
             self.meta = None
-            print(f"!!! tuple: {value} !!!")
         elif isinstance(value, torch.Size):
             self.type = torch.Size
             self.hash = None
-            self.meta = None
-            print(f"!!! torch.Size: {value} !!!")
+            self.meta = {"value": value}
         elif isinstance(value, torch.dtype):
             self.type = torch.dtype
             self.hash = None
@@ -201,6 +199,18 @@ class TensorExpand(Op):
 class Tril(Op):
     name = "torch.tril"
 
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class Linear(Op):
+    name = "torch.nn.Linear"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class TensorTranspose(Op):
+    name = "torch.Tensor.transpose"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
