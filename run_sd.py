@@ -161,8 +161,8 @@ class OnesLike(Op):
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
-class Expand(Op):
-    name = "torch.expand"
+class TensorExpand(Op):
+    name = "torch.Tensor.expand"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
@@ -190,7 +190,7 @@ ops = {op.name: op for op in [
     Cat,
     OnesLike,
     Tril,
-    Expand
+    TensorExpand
 ]}
 
 
