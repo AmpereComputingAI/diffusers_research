@@ -76,7 +76,7 @@ class Op:
         # self.loop_stack = [loop for loop in loop_stack]
 
 
-class TorchTensor(Op):
+class Tensor(Op):
     name = "torch.tensor"
     def __init__(self, inp, out, section):
         super().__init__(inp, out, section)
@@ -88,9 +88,23 @@ class IsTensor(Op):
         super().__init__(inp, out, section)
 
 
+class TensorSize(Op):
+    name = "torch.Tensor.size"
+    def __init__(self, inp, out, section):
+        super().__init__(inp, out, section)
+
+
+class TensorView(Op):
+    name = "torch.Tensor.view"
+    def __init__(self, inp, out, section):
+        super().__init__(inp, out, section)
+
+
 ops = {op.name: op for op in [
-    TorchTensor,
-    IsTensor
+    Tensor,
+    IsTensor,
+    TensorSize,
+    TensorView
 ]}
 
 
