@@ -145,6 +145,13 @@ class Sub(Op):
         super().__init__(args, inp, out, section)
 
 
+class Mul(Op):
+    name = "torch.mul"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+
 class TensorMaskedFill_(Op):
     name = "torch.Tensor.masked_fill_"
     def __init__(self, args, inp, out, section):
@@ -249,6 +256,7 @@ ops = {op.name: op for op in [
     nnEmbedding,
     Add,
     Sub,
+    Mul,
     TensorMaskedFill_,
     Lt,
     Arange,
