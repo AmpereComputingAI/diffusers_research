@@ -194,7 +194,7 @@ class Tracer:
             print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
             print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
             print("Section:")
-            print(" -> ".join([section.annotation[:20] for section in op.section_stack]))
+            print(" -> ".join([str(section.annotation)[:20] for section in op.section_stack]))
             # print("Conditions:")
             # for cond in op.condition_stack:
             #     print(cond.condition)
