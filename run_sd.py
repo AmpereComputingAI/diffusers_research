@@ -99,6 +99,12 @@ class TensorSize(Op):
         super().__init__(args, inp, out, section)
 
 
+class TensorTo(Op):
+    name = "torch.Tensor.to"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class TensorView(Op):
     name = "torch.Tensor.view"
     def __init__(self, args, inp, out, section):
@@ -197,7 +203,8 @@ ops = {op.name: op for op in [
     Cat,
     OnesLike,
     Tril,
-    TensorExpand
+    TensorExpand,
+    TensorTo
 ]}
 
 
