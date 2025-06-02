@@ -97,7 +97,7 @@ ops = {op.name: op for op in [
 class Tracer:
     def __init__(self):
         self.ops = []
-        self.section_stack = self.SectionStack()
+        self.section = self.SectionStack()
         # self.condition_stack = []
         # self.loop_stack = []
 
@@ -138,7 +138,7 @@ class Tracer:
     #     self.condition_stack = self.condition_stack[:idx]
 
     def add_op(self, name, inp, out):
-        self.ops.append(ops[name](inp, out, self.section_stack.stack))
+        self.ops.append(ops[name](inp, out, self.section.stack))
 
     def vomit(self):
         raise NotImplementedError("tracing not implemented")
@@ -152,7 +152,6 @@ class Tracer:
             print("------")
             print(op.name)
             print(op.location)
-            print(op.section)
             print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
             print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
             print("Section:")
