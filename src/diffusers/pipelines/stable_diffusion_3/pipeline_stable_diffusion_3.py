@@ -329,15 +329,15 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             prompt_embeds = text_encoder(tracer, text_input_ids.to(device), output_hidden_states=True)
             pooled_prompt_embeds = prompt_embeds[0]
 
-        tracer.summary()
-        fd
-
         if clip_skip is None:
             prompt_embeds = prompt_embeds.hidden_states[-2]
         else:
             prompt_embeds = prompt_embeds.hidden_states[-(clip_skip + 2)]
 
         prompt_embeds = prompt_embeds.to(dtype=self.text_encoder.dtype, device=device)
+
+        tracer.summary()
+        fd
 
         _, seq_len, _ = prompt_embeds.shape
         # duplicate text embeddings for each generation per prompt, using mps friendly method
