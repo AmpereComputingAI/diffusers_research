@@ -306,18 +306,17 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         prompt = [prompt] if isinstance(prompt, str) else prompt
         batch_size = len(prompt)
 
-        text_inputs = tokenizer(
-            tracer,
-            prompt,
-            padding="max_length",
-            max_length=self.tokenizer_max_length,
-            truncation=True,
-            return_tensors="pt",
-        )
+        with tracer.section("tokenize"):
+            text_inputs = tokenizer(
+                tracer,
+                prompt,
+                padding="max_length",
+                max_length=self.tokenizer_max_length,
+                truncation=True,
+                return_tensors="pt",
+            )
 
         text_input_ids = text_inputs.input_ids
-        tracer.summary()
-        fd
         untruncated_ids = tokenizer(tracer, prompt, padding="longest", return_tensors="pt").input_ids
         if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(text_input_ids, untruncated_ids):
             removed_text = tokenizer.batch_decode(untruncated_ids[:, self.tokenizer_max_length - 1 : -1])
@@ -325,8 +324,13 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 "The following part of your input was truncated because CLIP can only handle sequences up to"
                 f" {self.tokenizer_max_length} tokens: {removed_text}"
             )
-        prompt_embeds = text_encoder(text_input_ids.to(device), output_hidden_states=True)
-        pooled_prompt_embeds = prompt_embeds[0]
+
+        with tracer.section("encode"):
+            prompt_embeds = text_encoder(tracer, text_input_ids.to(device), output_hidden_states=True)
+            pooled_prompt_embeds = prompt_embeds[0]
+
+        tracer.summary()
+        fd
 
         if clip_skip is None:
             prompt_embeds = prompt_embeds.hidden_states[-2]
