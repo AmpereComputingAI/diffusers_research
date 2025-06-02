@@ -158,6 +158,12 @@ class TensorMaskedFill_(Op):
         super().__init__(args, inp, out, section)
 
 
+class TensorArgmax(Op):
+    name = "torch.Tensor.argmax"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class Lt(Op):
     name = "torch.lt"
     def __init__(self, args, inp, out, section):
@@ -272,7 +278,8 @@ ops = {op.name: op for op in [
     TensorTranspose,
     TensorReshape,
     SDPA,
-    Sigmoid
+    Sigmoid,
+    TensorArgmax
 ]}
 
 
