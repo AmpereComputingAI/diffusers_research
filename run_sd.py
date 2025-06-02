@@ -101,8 +101,8 @@ class TensorView(Op):
         super().__init__(args, inp, out, section)
 
 
-class nnEmbeddings(Op):
-    name = "torch.nn.Embeddings"
+class nnEmbedding(Op):
+    name = "torch.nn.Embedding"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
@@ -118,7 +118,7 @@ ops = {op.name: op for op in [
     IsTensor,
     TensorSize,
     TensorView,
-    nnEmbeddings,
+    nnEmbedding,
     Add
 ]}
 
