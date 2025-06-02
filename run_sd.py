@@ -209,6 +209,13 @@ class Linear(Op):
         super().__init__(args, inp, out, section)
 
 
+class LayerNorm(Op):
+    name = "torch.nn.LayerNorm"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class TensorTranspose(Op):
     name = "torch.Tensor.transpose"
     def __init__(self, args, inp, out, section):
