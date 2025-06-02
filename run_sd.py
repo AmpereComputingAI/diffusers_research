@@ -216,8 +216,21 @@ class LayerNorm(Op):
         super().__init__(args, inp, out, section)
 
 
+class SDPA(Op):
+    name = "torch.nn.functional.scaled_dot_product_attention"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class TensorTranspose(Op):
     name = "torch.Tensor.transpose"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class TensorReshape(Op):
+    name = "torch.Tensor.reshape"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
@@ -242,7 +255,9 @@ ops = {op.name: op for op in [
     TensorTo,
     LayerNorm,
     Linear,
-    TensorTranspose
+    TensorTranspose,
+    TensorReshape,
+    SDPA
 ]}
 
 
@@ -263,6 +278,9 @@ class Tracer:
 
         def __exit__(self, exc_type, exc_val, exc_tb):
             self.tracer.section_stack.pop()
+
+    def get_dict(self, items):
+        return {f"{i}": val for i, val in enumerate(items)}
 
     def section(self, annotation):
         return self._Section(self, annotation)
