@@ -143,6 +143,38 @@ class Full(Op):
         super().__init__(args, inp, out, section)
 
 
+class Zeros(Op):
+    name = "torch.zeros"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+class Cat(Op):
+    name = "torch.cat"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+class OnesLike(Op):
+    name = "torch.ones_like"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+class Expand(Op):
+    name = "torch.expand"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class Tril(Op):
+    name = "torch.tril"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 ops = {op.name: op for op in [
     Tensor,
     IsTensor,
@@ -153,7 +185,12 @@ ops = {op.name: op for op in [
     TensorMaskedFill_,
     Lt,
     Arange,
-    Full
+    Full,
+    Zeros,
+    Cat,
+    OnesLike,
+    Tril,
+    Expand
 ]}
 
 
