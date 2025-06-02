@@ -67,8 +67,9 @@ class Data:
 
 class Op:
     name = None
-    def __init__(self, inp, out, section_stack):
+    def __init__(self, args, inp, out, section_stack):
         self.location = traceback.extract_stack()[-4]
+        self.args = {key: Data(value) for key, value in args.items()}
         self.input = {key: Data(value) for key, value in inp.items()}
         self.output = {key: Data(value) for key, value in out.items()}
         self.section_stack = [section for section in section_stack]
@@ -78,33 +79,47 @@ class Op:
 
 class Tensor(Op):
     name = "torch.tensor"
-    def __init__(self, inp, out, section):
-        super().__init__(inp, out, section)
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
 
 
 class IsTensor(Op):
     name = "torch.is_tensor"
-    def __init__(self, inp, out, section):
-        super().__init__(inp, out, section)
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
 
 
 class TensorSize(Op):
     name = "torch.Tensor.size"
-    def __init__(self, inp, out, section):
-        super().__init__(inp, out, section)
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
 
 
 class TensorView(Op):
     name = "torch.Tensor.view"
-    def __init__(self, inp, out, section):
-        super().__init__(inp, out, section)
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class nnEmbeddings(Op):
+    name = "torch.nn.Embeddings"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class Add(Op):
+    name = "torch.add"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
 
 
 ops = {op.name: op for op in [
     Tensor,
     IsTensor,
     TensorSize,
-    TensorView
+    TensorView,
+    nnEmbeddings,
+    Add
 ]}
 
 
@@ -155,8 +170,10 @@ class Tracer:
     # def reset_condition_stack(self, idx: int):
     #     self.condition_stack = self.condition_stack[:idx]
 
-    def add_op(self, name, inp, out):
-        self.ops.append(ops[name](inp, out, self.section_stack))
+    def add_op(self, name, inp, out, args=None):
+        if args is None:
+            args = {}
+        self.ops.append(ops[name](args, inp, out, self.section_stack))
 
     def vomit(self):
         raise NotImplementedError("tracing not implemented")
@@ -173,7 +190,7 @@ class Tracer:
             print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
             print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
             print("Section:")
-            print(" -> ".join([section.annotation for section in op.section_stack]))
+            print(" -> ".join([section.annotation[:20] for section in op.section_stack]))
             # print("Conditions:")
             # for cond in op.condition_stack:
             #     print(cond.condition)
