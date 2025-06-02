@@ -306,7 +306,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         prompt = [prompt] if isinstance(prompt, str) else prompt
         batch_size = len(prompt)
 
-        with tracer.section("tokenize"):
+        with tracer.section(f"tokenize [{tokenizer}]"):
             text_inputs = tokenizer(
                 tracer,
                 prompt,
@@ -325,7 +325,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 f" {self.tokenizer_max_length} tokens: {removed_text}"
             )
 
-        with tracer.section("encode"):
+        with tracer.section(f"encode [{text_encoder}]"):
             prompt_embeds = text_encoder(tracer, text_input_ids.to(device), output_hidden_states=True)
             pooled_prompt_embeds = prompt_embeds[0]
 
