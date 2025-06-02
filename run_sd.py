@@ -117,6 +117,12 @@ class Add(Op):
         super().__init__(args, inp, out, section)
 
 
+class Sub(Op):
+    name = "torch.sub"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class TensorMaskedFill_(Op):
     name = "torch.Tensor.masked_fill_"
     def __init__(self, args, inp, out, section):
@@ -182,6 +188,7 @@ ops = {op.name: op for op in [
     TensorView,
     nnEmbedding,
     Add,
+    Sub,
     TensorMaskedFill_,
     Lt,
     Arange,
