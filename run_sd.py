@@ -58,6 +58,24 @@ class Data:
             self.type = int
             self.hash = None
             self.meta = {"value": value}
+        elif isinstance(value, float):
+            self.type = float
+            self.hash = None
+            self.meta = {"value": value}
+        elif isinstance(value, tuple):
+            self.type = tuple
+            self.hash = None
+            self.meta = None
+            print(f"!!! tuple: {value} !!!")
+        elif isinstance(value, torch.Size):
+            self.type = torch.Size
+            self.hash = None
+            self.meta = None
+            print(f"!!! torch.Size: {value} !!!")
+        elif isinstance(value, torch.dtype):
+            self.type = torch.dtype
+            self.hash = None
+            self.meta = {"value": value}
         elif isinstance(value, torch.Tensor):
             self.type = torch.Tensor
             self.hash = hash_tensor(value)
