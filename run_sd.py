@@ -32,7 +32,7 @@ class Section:
 
 def hash_tensor(tensor):
     tensor = tensor.clone().detach()
-    tensor_bytes = tensor.cpu().contiguous().numpy().tobytes()
+    tensor_bytes = tensor.to(dtype=torch.float32).cpu().contiguous().numpy().tobytes()
     return hashlib.sha256(tensor_bytes).hexdigest()
 
 
@@ -54,6 +54,10 @@ class Data:
             self.type = str
             self.hash = None
             self.meta = {"size": len(value)}
+        elif isinstance(value, int):
+            self.type = int
+            self.hash = None
+            self.meta = {"value": value}
         elif isinstance(value, torch.Tensor):
             self.type = torch.Tensor
             self.hash = hash_tensor(value)
