@@ -361,6 +361,18 @@ class TensorPermute(Op):
         super().__init__(args, inp, out, section)
 
 
+class SoftMax(Op):
+    name = "torch.nn.functional.softmax"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class TensorTypeAs(Op):
+    name = "torch.Tensor.type_as"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 ops = {op.name: op for op in [
     Tensor,
     IsTensor,
@@ -403,7 +415,9 @@ ops = {op.name: op for op in [
     Where,
     FullLike,
     Div,
-    Log
+    Log,
+    TensorTypeAs,
+    SoftMax
 ]}
 
 
