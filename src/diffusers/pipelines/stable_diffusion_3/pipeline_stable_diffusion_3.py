@@ -512,15 +512,21 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                         device=device,
                     )
 
-                tracer.summary()
-                f
-
-                clip_prompt_embeds = torch.nn.functional.pad(
+                tracer.add_op("torch.Tensor.size", {"input": t5_prompt_embed}, {"output": t5_prompt_embed.shape})
+                tracer.add_op("torch.Tensor.size", {"input": clip_prompt_embeds}, {"output": clip_prompt_embeds.shape})
+                clip_prompt_embeds_ = torch.nn.functional.pad(
                     clip_prompt_embeds, (0, t5_prompt_embed.shape[-1] - clip_prompt_embeds.shape[-1])
                 )
+                d = tracer.get_dict([0, t5_prompt_embed.shape[-1] - clip_prompt_embeds.shape[-1]])
+                d["input"] = clip_prompt_embeds
+                tracer.add_op("torch.nn.functional.pad", d, {"output": clip_prompt_embeds_})
+                clip_prompt_embeds = clip_prompt_embeds_
 
                 prompt_embeds = torch.cat([clip_prompt_embeds, t5_prompt_embed], dim=-2)
+                tracer.add_op("torch.cat", {"tensors": [clip_prompt_embeds, t5_prompt_embed], "dim": -2}, {"output": prompt_embeds})
                 pooled_prompt_embeds = torch.cat([pooled_prompt_embed, pooled_prompt_2_embed], dim=-1)
+                tracer.add_op("torch.cat", {"tensors": [pooled_prompt_embed, pooled_prompt_2_embed], "dim": -1},
+                              {"output": pooled_prompt_embeds})
 
                 tracer.reset_condition_stack(idx)
 
@@ -567,32 +573,48 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                     clip_model_index=1,
                 )
                 negative_clip_prompt_embeds = torch.cat([negative_prompt_embed, negative_prompt_2_embed], dim=-1)
+                tracer.add_op("torch.cat", {"tensors": [negative_prompt_embed, negative_prompt_2_embed], "dim": -1},
+                              {"output": negative_clip_prompt_embeds})
 
                 t5_negative_prompt_embed = self._get_t5_prompt_embeds(
+                    tracer,
                     prompt=negative_prompt_3,
                     num_images_per_prompt=num_images_per_prompt,
                     max_sequence_length=max_sequence_length,
                     device=device,
                 )
 
-                negative_clip_prompt_embeds = torch.nn.functional.pad(
+                tracer.add_op("torch.Tensor.size", {"input": t5_negative_prompt_embed}, {"output": t5_negative_prompt_embed.shape})
+                tracer.add_op("torch.Tensor.size", {"input": negative_clip_prompt_embeds}, {"output": negative_clip_prompt_embeds.shape})
+                negative_clip_prompt_embeds_ = torch.nn.functional.pad(
                     negative_clip_prompt_embeds,
                     (0, t5_negative_prompt_embed.shape[-1] - negative_clip_prompt_embeds.shape[-1]),
                 )
+                d = tracer.get_dict([0, t5_negative_prompt_embed.shape[-1] - negative_clip_prompt_embeds.shape[-1]])
+                d["input"] = negative_clip_prompt_embeds
+                tracer.add_op("torch.nn.functional.pad", d, {"output": negative_clip_prompt_embeds_})
+                negative_clip_prompt_embeds = negative_clip_prompt_embeds_
 
                 negative_prompt_embeds = torch.cat([negative_clip_prompt_embeds, t5_negative_prompt_embed], dim=-2)
+                tracer.add_op("torch.cat", {"tensors": [negative_clip_prompt_embeds, t5_negative_prompt_embed], "dim": -2},
+                              {"output": negative_prompt_embeds})
                 negative_pooled_prompt_embeds = torch.cat(
                     [negative_pooled_prompt_embed, negative_pooled_prompt_2_embed], dim=-1
                 )
+                tracer.add_op("torch.cat",
+                              {"tensors": [negative_pooled_prompt_embed, negative_pooled_prompt_2_embed], "dim": -1},
+                              {"output": negative_pooled_prompt_embeds})
 
             if self.text_encoder is not None:
                 if isinstance(self, SD3LoraLoaderMixin) and USE_PEFT_BACKEND:
                     # Retrieve the original scale by scaling back the LoRA layers
+                    tracer.vomit()
                     unscale_lora_layers(self.text_encoder, lora_scale)
 
             if self.text_encoder_2 is not None:
                 if isinstance(self, SD3LoraLoaderMixin) and USE_PEFT_BACKEND:
                     # Retrieve the original scale by scaling back the LoRA layers
+                    tracer.vomit()
                     unscale_lora_layers(self.text_encoder_2, lora_scale)
 
             return prompt_embeds, negative_prompt_embeds, pooled_prompt_embeds, negative_pooled_prompt_embeds
