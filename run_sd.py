@@ -379,6 +379,13 @@ class TensorTypeAs(Op):
         super().__init__(args, inp, out, section)
 
 
+class Pad(Op):
+    name = "torch.nn.functional.pad"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 ops = {op.name: op for op in [
     Tensor,
     IsTensor,
@@ -424,7 +431,8 @@ ops = {op.name: op for op in [
     Log,
     TensorTypeAs,
     SoftMax,
-    Tanh
+    Tanh,
+    Pad
 ]}
 
 
