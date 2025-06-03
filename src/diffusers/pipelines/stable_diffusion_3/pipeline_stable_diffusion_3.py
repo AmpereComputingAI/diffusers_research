@@ -306,7 +306,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         prompt = [prompt] if isinstance(prompt, str) else prompt
         batch_size = len(prompt)
 
-        with tracer.section(f"tokenize [{tokenizer}]"):
+        with tracer.section(tokenizer):
             text_inputs = tokenizer(
                 tracer,
                 prompt,
@@ -334,18 +334,33 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         else:
             prompt_embeds = prompt_embeds.hidden_states[-(clip_skip + 2)]
 
-        prompt_embeds = prompt_embeds.to(dtype=self.text_encoder.dtype, device=device)
-
-        tracer.summary()
-        fd
+        prompt_embeds_ = prompt_embeds.to(dtype=self.text_encoder.dtype, device=device)
+        tracer.add_op("torch.Tensor.to", {"input": prompt_embeds, "dtype": self.text_encoder.dtype},
+                      {"output": prompt_embeds_})
+        prompt_embeds = prompt_embeds_
 
         _, seq_len, _ = prompt_embeds.shape
+        tracer.add_op("torch.Tensor.size", {"input": prompt_embeds}, {"output": prompt_embeds.shape})
         # duplicate text embeddings for each generation per prompt, using mps friendly method
-        prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
-        prompt_embeds = prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
+        prompt_embeds_ = prompt_embeds.repeat(1, num_images_per_prompt, 1)
+        input_dict = tracer.get_dict([1, num_images_per_prompt, 1])
+        input_dict["input"] = prompt_embeds
+        tracer.add_op("torch.Tensor.repeat", input_dict, {"output": prompt_embeds_})
 
-        pooled_prompt_embeds = pooled_prompt_embeds.repeat(1, num_images_per_prompt, 1)
-        pooled_prompt_embeds = pooled_prompt_embeds.view(batch_size * num_images_per_prompt, -1)
+        prompt_embeds = prompt_embeds_.view(batch_size * num_images_per_prompt, seq_len, -1)
+        input_dict = tracer.get_dict([batch_size * num_images_per_prompt, seq_len, -1])
+        input_dict["input"] = prompt_embeds_
+        tracer.add_op("torch.Tensor.view", input_dict, {"output": prompt_embeds})
+
+        pooled_prompt_embeds_ = pooled_prompt_embeds.repeat(1, num_images_per_prompt, 1)
+        input_dict = tracer.get_dict([1, num_images_per_prompt, 1])
+        input_dict["input"] = pooled_prompt_embeds
+        tracer.add_op("torch.Tensor.repeat", input_dict, {"output": pooled_prompt_embeds_})
+
+        pooled_prompt_embeds = pooled_prompt_embeds_.view(batch_size * num_images_per_prompt, -1)
+        input_dict = tracer.get_dict([batch_size * num_images_per_prompt, -1])
+        input_dict["input"] = pooled_prompt_embeds_
+        tracer.add_op("torch.Tensor.view", input_dict, {"output": pooled_prompt_embeds})
 
         return prompt_embeds, pooled_prompt_embeds
 
@@ -454,22 +469,27 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                         clip_skip=clip_skip,
                         clip_model_index=0,
                     )
-                prompt_2_embed, pooled_prompt_2_embed = self._get_clip_prompt_embeds(
-                    tracer,
-                    prompt=prompt_2,
-                    device=device,
-                    num_images_per_prompt=num_images_per_prompt,
-                    clip_skip=clip_skip,
-                    clip_model_index=1,
-                )
+                with tracer.section("get clip prompt embeds for prompt 1"):
+                    prompt_2_embed, pooled_prompt_2_embed = self._get_clip_prompt_embeds(
+                        tracer,
+                        prompt=prompt_2,
+                        device=device,
+                        num_images_per_prompt=num_images_per_prompt,
+                        clip_skip=clip_skip,
+                        clip_model_index=1,
+                    )
+
+                tracer.summary()
+                f
                 clip_prompt_embeds = torch.cat([prompt_embed, prompt_2_embed], dim=-1)
 
-                t5_prompt_embed = self._get_t5_prompt_embeds(
-                    prompt=prompt_3,
-                    num_images_per_prompt=num_images_per_prompt,
-                    max_sequence_length=max_sequence_length,
-                    device=device,
-                )
+                with tracer.section("get t5 prompt embeds for prompt 2"):
+                    t5_prompt_embed = self._get_t5_prompt_embeds(
+                        prompt=prompt_3,
+                        num_images_per_prompt=num_images_per_prompt,
+                        max_sequence_length=max_sequence_length,
+                        device=device,
+                    )
 
                 clip_prompt_embeds = torch.nn.functional.pad(
                     clip_prompt_embeds, (0, t5_prompt_embed.shape[-1] - clip_prompt_embeds.shape[-1])
