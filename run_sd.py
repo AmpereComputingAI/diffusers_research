@@ -208,6 +208,30 @@ class OnesLike(Op):
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
+class ZerosLike(Op):
+    name = "torch.zeros_like"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+class FullLike(Op):
+    name = "torch.full_like"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+class Min(Op):
+    name = "torch.min"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+class Where(Op):
+    name = "torch.where"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
 class TensorExpand(Op):
     name = "torch.Tensor.expand"
 
@@ -287,6 +311,12 @@ class Sigmoid(Op):
         super().__init__(args, inp, out, section)
 
 
+class Abs(Op):
+    name = "torch.abs"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class Gelu(Op):
     name = "torch.nn.functional.gelu"
     def __init__(self, args, inp, out, section):
@@ -295,6 +325,18 @@ class Gelu(Op):
 
 class ApexFusedRMSNorm(Op):
     name = "apex.normalization.FusedRMSNorm"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class MatMul(Op):
+    name = "torch.matmul"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class TensorPermute(Op):
+    name = "torch.Tensor.permute"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
@@ -331,7 +373,14 @@ ops = {op.name: op for op in [
     Pow,
     Mean,
     RSqrt,
-    ApexFusedRMSNorm
+    ApexFusedRMSNorm,
+    MatMul,
+    TensorPermute,
+    Abs,
+    ZerosLike,
+    Min,
+    Where,
+    FullLike
 ]}
 
 
