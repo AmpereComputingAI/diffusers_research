@@ -367,6 +367,12 @@ class SoftMax(Op):
         super().__init__(args, inp, out, section)
 
 
+class Tanh(Op):
+    name = "torch.tanh"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class TensorTypeAs(Op):
     name = "torch.Tensor.type_as"
     def __init__(self, args, inp, out, section):
@@ -417,7 +423,8 @@ ops = {op.name: op for op in [
     Div,
     Log,
     TensorTypeAs,
-    SoftMax
+    SoftMax,
+    Tanh
 ]}
 
 
