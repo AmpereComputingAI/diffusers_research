@@ -293,6 +293,12 @@ class Gelu(Op):
         super().__init__(args, inp, out, section)
 
 
+class ApexFusedRMSNorm(Op):
+    name = "apex.normalization.FusedRMSNorm"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 ops = {op.name: op for op in [
     Tensor,
     IsTensor,
@@ -324,7 +330,8 @@ ops = {op.name: op for op in [
     Gelu,
     Pow,
     Mean,
-    RSqrt
+    RSqrt,
+    ApexFusedRMSNorm
 ]}
 
 
