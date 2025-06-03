@@ -232,6 +232,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
 
     def _get_t5_prompt_embeds(
         self,
+        tracer,
         prompt: Union[str, List[str]] = None,
         num_images_per_prompt: int = 1,
         max_sequence_length: int = 256,
@@ -245,7 +246,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         batch_size = len(prompt)
 
         if self.text_encoder_3 is None:
-            return torch.zeros(
+            x = torch.zeros(
                 (
                     batch_size * num_images_per_prompt,
                     self.tokenizer_max_length,
@@ -254,8 +255,15 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 device=device,
                 dtype=dtype,
             )
+            input_dict = tracer.get_dict([batch_size * num_images_per_prompt,
+                    self.tokenizer_max_length,
+                    self.transformer.config.joint_attention_dim])
+            input_dict["dtype"] = dtype
+            tracer.add_op("torch.zeros", input_dict, {"output": x})
+            return x
 
         text_inputs = self.tokenizer_3(
+            tracer,
             prompt,
             padding="max_length",
             max_length=max_sequence_length,
@@ -264,7 +272,7 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             return_tensors="pt",
         )
         text_input_ids = text_inputs.input_ids
-        untruncated_ids = self.tokenizer_3(prompt, padding="longest", return_tensors="pt").input_ids
+        untruncated_ids = self.tokenizer_3(tracer, prompt, padding="longest", return_tensors="pt").input_ids
 
         if untruncated_ids.shape[-1] >= text_input_ids.shape[-1] and not torch.equal(text_input_ids, untruncated_ids):
             removed_text = self.tokenizer_3.batch_decode(untruncated_ids[:, self.tokenizer_max_length - 1 : -1])
@@ -272,6 +280,8 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 "The following part of your input was truncated because `max_sequence_length` is set to "
                 f" {max_sequence_length} tokens: {removed_text}"
             )
+
+        df
 
         prompt_embeds = self.text_encoder_3(text_input_ids.to(device))[0]
 
@@ -479,17 +489,21 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                         clip_model_index=1,
                     )
 
-                tracer.summary()
-                f
                 clip_prompt_embeds = torch.cat([prompt_embed, prompt_2_embed], dim=-1)
+                tracer.add_op("torch.cat",
+                              {"tensors": [prompt_embed, prompt_2_embed], "dim": -1}, {"output": clip_prompt_embeds})
 
                 with tracer.section("get t5 prompt embeds for prompt 2"):
                     t5_prompt_embed = self._get_t5_prompt_embeds(
+                        tracer,
                         prompt=prompt_3,
                         num_images_per_prompt=num_images_per_prompt,
                         max_sequence_length=max_sequence_length,
                         device=device,
                     )
+
+                tracer.summary()
+                f
 
                 clip_prompt_embeds = torch.nn.functional.pad(
                     clip_prompt_embeds, (0, t5_prompt_embed.shape[-1] - clip_prompt_embeds.shape[-1])
