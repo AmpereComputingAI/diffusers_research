@@ -253,6 +253,13 @@ class Pow(Op):
         super().__init__(args, inp, out, section)
 
 
+class Div(Op):
+    name = "torch.div"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class Mean(Op):
     name = "torch.mean"
 
@@ -380,7 +387,8 @@ ops = {op.name: op for op in [
     ZerosLike,
     Min,
     Where,
-    FullLike
+    FullLike,
+    Div
 ]}
 
 
