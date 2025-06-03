@@ -190,6 +190,12 @@ class Zeros(Op):
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
 
+class Ones(Op):
+    name = "torch.ones"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
 class Cat(Op):
     name = "torch.cat"
 
@@ -279,6 +285,7 @@ ops = {op.name: op for op in [
     Lt,
     Arange,
     Full,
+    Ones,
     Zeros,
     Cat,
     OnesLike,
