@@ -1044,6 +1044,9 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             lora_scale=lora_scale,
         )
 
+        tracer.summary()
+        ff
+
         if self.do_classifier_free_guidance:
             if skip_guidance_layers is not None:
                 original_prompt_embeds = prompt_embeds
