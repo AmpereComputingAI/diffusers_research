@@ -222,6 +222,27 @@ class Tril(Op):
         super().__init__(args, inp, out, section)
 
 
+class Pow(Op):
+    name = "torch.pow"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class Mean(Op):
+    name = "torch.mean"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
+class RSqrt(Op):
+    name = "torch.rsqrt"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class Linear(Op):
     name = "torch.nn.Linear"
     def __init__(self, args, inp, out, section):
@@ -300,7 +321,10 @@ ops = {op.name: op for op in [
     SDPA,
     Sigmoid,
     TensorArgmax,
-    Gelu
+    Gelu,
+    Pow,
+    Mean,
+    RSqrt
 ]}
 
 
