@@ -248,6 +248,12 @@ class TensorReshape(Op):
         super().__init__(args, inp, out, section)
 
 
+class TensorRepeat(Op):
+    name = "torch.Tensor.repeat"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class Sigmoid(Op):
     name = "torch.sigmoid"
     def __init__(self, args, inp, out, section):
@@ -272,6 +278,7 @@ ops = {op.name: op for op in [
     OnesLike,
     Tril,
     TensorExpand,
+    TensorRepeat,
     TensorTo,
     LayerNorm,
     Linear,
