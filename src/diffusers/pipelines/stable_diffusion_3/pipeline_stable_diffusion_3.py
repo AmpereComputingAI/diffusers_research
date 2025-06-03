@@ -283,9 +283,11 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 f" {max_sequence_length} tokens: {removed_text}"
             )
 
-        df
+        with tracer.section(self.text_encoder_3):
+            prompt_embeds = self.text_encoder_3(tracer, text_input_ids.to(device))[0]
 
-        prompt_embeds = self.text_encoder_3(text_input_ids.to(device))[0]
+        tracer.summary()
+        ff
 
         dtype = self.text_encoder_3.dtype
         prompt_embeds = prompt_embeds.to(dtype=dtype, device=device)
