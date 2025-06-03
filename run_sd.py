@@ -292,7 +292,8 @@ ops = {op.name: op for op in [
     TensorReshape,
     SDPA,
     Sigmoid,
-    TensorArgmax
+    TensorArgmax,
+    Gelu
 ]}
 
 
