@@ -286,17 +286,23 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
         with tracer.section(self.text_encoder_3):
             prompt_embeds = self.text_encoder_3(tracer, text_input_ids.to(device))[0]
 
-        tracer.summary()
-        ff
-
         dtype = self.text_encoder_3.dtype
-        prompt_embeds = prompt_embeds.to(dtype=dtype, device=device)
+        prompt_embeds_ = prompt_embeds.to(dtype=dtype, device=device)
+        tracer.add_op("torch.Tensor.to", {"input": prompt_embeds, "dtype": dtype}, {"output": prompt_embeds_})
+        prompt_embeds = prompt_embeds_
 
         _, seq_len, _ = prompt_embeds.shape
+        tracer.add_op("torch.Tensor.size", {"input": prompt_embeds}, {"output": prompt_embeds.shape})
 
         # duplicate text embeddings and attention mask for each generation per prompt, using mps friendly method
-        prompt_embeds = prompt_embeds.repeat(1, num_images_per_prompt, 1)
-        prompt_embeds = prompt_embeds.view(batch_size * num_images_per_prompt, seq_len, -1)
+        prompt_embeds_ = prompt_embeds.repeat(1, num_images_per_prompt, 1)
+        d = tracer.get_dict([1, num_images_per_prompt, 1])
+        d["input"] = prompt_embeds
+        tracer.add_op("torch.Tensor.repeat", d, {"output": prompt_embeds_})
+        prompt_embeds = prompt_embeds_.view(batch_size * num_images_per_prompt, seq_len, -1)
+        d = tracer.get_dict([batch_size * num_images_per_prompt, seq_len, -1])
+        d["input"] = prompt_embeds_
+        tracer.add_op("torch.Tensor.view", d, {"output": prompt_embeds})
 
         return prompt_embeds
 
