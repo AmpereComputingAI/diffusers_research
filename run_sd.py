@@ -37,7 +37,7 @@ def hash_tensor(tensor):
 
 
 class Data:
-    def __init__(self, op, value, is_input: bool):
+    def __init__(self, op, value, is_input: bool, is_preloaded=False):
         self.type = type(value)
         self.hash = None
         self.meta = None
@@ -65,10 +65,11 @@ class Data:
         elif isinstance(value, torch.Tensor):
             self.hash = hash_tensor(value)
             self.meta = {"shape": value.shape, "dtype": value.dtype, "device": value.device}
-            if is_input:
-                op.input_tensors.append(self.hash)
-            else:
-                op.output_tensors.append(self.hash)
+            if not is_preloaded:
+                if is_input:
+                    op.input_tensors.append(self.hash)
+                else:
+                    op.output_tensors.append(self.hash)
         else:
             assert False, type(value)
 
@@ -437,6 +438,7 @@ ops = {op.name: op for op in [
 
 class Tracer:
     def __init__(self):
+        self.preloaded_tensors = []
         self.ops = []
         self.section_stack = []
         # self.condition_stack = []
@@ -471,6 +473,9 @@ class Tracer:
     def reset_condition_stack(self, _):
         pass
 
+    def add_preloaded_tensor(self, tensor):
+        self.preloaded_tensors.append(Data(None, tensor, None, True))
+
     # def add_loop(self, body: str, operands: dict):
     #     self.loop_stack.append(Loop(body, operands))
     #     return len(self.loop_stack) - 1
@@ -498,7 +503,7 @@ class Tracer:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
     def summary(self):
-        tensor_map = {}
+        tensor_map = {tensor.hash: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
             print("------")
             print(op.name)
