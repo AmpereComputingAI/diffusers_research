@@ -523,7 +523,6 @@ class Tracer:
                         print("-----------------------")
                         print(f"Block: {idx}")
                         idx += 1
-                        print(op.dependants)
                         if len(op.dependants) < 2:
                             new_block = False
                     elif len(op.dependencies) > 1:
