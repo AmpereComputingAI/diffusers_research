@@ -230,6 +230,13 @@ class TensorExpand(Op):
         super().__init__(args, inp, out, section)
 
 
+class TensorSelection(Op):
+    name = "torch.Tensor.selection"
+
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
+
 class Tril(Op):
     name = "torch.tril"
 
@@ -423,7 +430,8 @@ ops = {op.name: op for op in [
     TensorTypeAs,
     SoftMax,
     Tanh,
-    Pad
+    Pad,
+    TensorSelection
 ]}
 
 
