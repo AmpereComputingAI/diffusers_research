@@ -518,7 +518,7 @@ class Tracer:
                 if id(op) in processed:
                     continue
                 dep_ids = [id(dep) for dep in op.dependencies]
-                if all(dep_ids):
+                if all([dep_id in processed for dep_id in dep_ids]):
                     if new_block:
                         print("-----------------------")
                         print(f"Block: {idx}")
