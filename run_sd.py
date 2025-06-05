@@ -37,7 +37,7 @@ def hash_tensor(tensor):
 
 
 class Data:
-    def __init__(self, op, value, is_input: bool, is_preloaded=False):
+    def __init__(self, op, value, is_input: bool):
         self.type = type(value)
         self.hash = None
         self.meta = None
@@ -65,11 +65,10 @@ class Data:
         elif isinstance(value, torch.Tensor):
             self.hash = hash_tensor(value)
             self.meta = {"shape": value.shape, "dtype": value.dtype, "device": value.device}
-            if not is_preloaded:
-                if is_input:
-                    op.input_tensors.append(self.hash)
-                else:
-                    op.output_tensors.append(self.hash)
+            if is_input:
+                op.input_tensors.append(self.hash)
+            else:
+                op.output_tensors.append(self.hash)
         else:
             assert False, type(value)
 
@@ -88,6 +87,11 @@ class Op:
         self.section_stack = [section for section in section_stack]
         # self.condition_stack = [condition for condition in condition_stack]
         # self.loop_stack = [loop for loop in loop_stack]
+
+class PreloadedTensor(Op):
+    name = "preloaded_tensor"
+    def __init__(self):
+        super().__init__({}, {}, {}, [])
 
 class Tensor(Op):
     name = "torch.tensor"
@@ -474,7 +478,7 @@ class Tracer:
         pass
 
     def add_preloaded_tensor(self, tensor):
-        self.preloaded_tensors.append(Data(None, tensor, None, True))
+        self.preloaded_tensors.append(Data(PreloadedTensor(), tensor, False, True))
 
     # def add_loop(self, body: str, operands: dict):
     #     self.loop_stack.append(Loop(body, operands))
