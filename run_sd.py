@@ -509,7 +509,7 @@ class Tracer:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
     def summary(self):
-        tensor_map = {tensor.output_tensors[0].hash: tensor for tensor in self.preloaded_tensors}
+        tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
             print("------")
             print(op.name)
