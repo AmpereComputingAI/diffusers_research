@@ -526,8 +526,11 @@ class Tracer:
                         print(op.dependants)
                         if len(op.dependants) < 2:
                             new_block = False
-                    elif len(op.dependencies) > 1 and id(processed[-1]) in dep_ids:
-                        break
+                    elif len(op.dependencies) > 1:
+                        if id(processed[-1]) in dep_ids:
+                            break
+                        else:
+                            continue
                     elif len(op.dependencies) != 1 or id(processed[-1]) != id(op.dependencies[0]):
                         continue
                     print("------")
