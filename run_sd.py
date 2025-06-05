@@ -517,7 +517,7 @@ class Tracer:
             for op in self.ops:
                 if id(op) in processed:
                     continue
-                dep_ids = [id(dep) in processed for dep in op.dependencies]
+                dep_ids = [id(dep) for dep in op.dependencies]
                 if all(dep_ids):
                     if new_block:
                         print("-----------------------")
@@ -526,10 +526,7 @@ class Tracer:
                         if len(op.dependants) < 2:
                             new_block = False
                     elif len(op.dependencies) > 1 and id(processed[-1]) in dep_ids:
-                        if all([dep_id in processed for dep_id in dep_ids]):
-                            new_block = True
-                        else:
-                            break
+                        break
                     elif len(op.dependencies) != 1 or id(processed[-1]) != id(op.dependencies[0]):
                         continue
                     print("------")
