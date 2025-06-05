@@ -478,7 +478,9 @@ class Tracer:
         pass
 
     def add_preloaded_tensor(self, tensor):
-        self.preloaded_tensors.append(Data(PreloadedTensor(), tensor, False))
+        t = PreloadedTensor()
+        Data(t, tensor, False)
+        self.preloaded_tensors.append(t)
 
     # def add_loop(self, body: str, operands: dict):
     #     self.loop_stack.append(Loop(body, operands))
