@@ -76,6 +76,8 @@ class Data:
 class Op:
     name = None
     def __init__(self, args, inp, out, section_stack):
+        self.dependencies = []
+        self.dependants = []
         self.input_tensors = []
         self.output_tensors = []
         self.location = traceback.extract_stack()[-4]
