@@ -529,6 +529,10 @@ class Tracer:
                 for tensor in op.output_tensors:
                     tensor_map[tensor] = op
 
+        import pickle
+        with open("tracer.pkl", "wb") as f:
+            pickle.dump(self, f)
+
 
 def main():
     pipe = StableDiffusion3Pipeline.from_pretrained("stabilityai/stable-diffusion-3.5-large",
