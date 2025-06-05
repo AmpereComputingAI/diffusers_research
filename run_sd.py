@@ -37,65 +37,54 @@ def hash_tensor(tensor):
 
 
 class Data:
-    def __init__(self, value):
+    def __init__(self, op, value, is_input: bool):
+        self.type = type(value)
+        self.hash = None
+        self.meta = None
+        self.items = None
+
         if isinstance(value, list):
-            self.type = list
-            self.hash = None
-            self.meta = {"dims": None}
+            self.items = [Data(op, val, is_input) for val in value]
         elif value is None:
-            self.type = None
-            self.hash = None
-            self.meta = None
+            return
         elif isinstance(value, bool):
-            self.type = bool
-            self.hash = None
             self.meta = {"value": value}
         elif isinstance(value, str):
-            self.type = str
-            self.hash = None
-            self.meta = {"size": len(value)}
+            self.meta = {"len": len(value)}
         elif isinstance(value, int):
-            self.type = int
-            self.hash = None
             self.meta = {"value": value}
         elif isinstance(value, float):
-            self.type = float
-            self.hash = None
             self.meta = {"value": value}
         elif isinstance(value, tuple):
-            self.type = tuple
-            self.hash = None
-            self.meta = None
+            self.items = [Data(op, val, is_input) for val in value]
         elif isinstance(value, torch.Size):
-            self.type = torch.Size
-            self.hash = None
             self.meta = {"value": value}
+            assert False, value
         elif isinstance(value, torch.dtype):
-            self.type = torch.dtype
-            self.hash = None
             self.meta = {"value": value}
         elif isinstance(value, torch.Tensor):
-            self.type = torch.Tensor
             self.hash = hash_tensor(value)
             self.meta = {"shape": value.shape, "dtype": value.dtype, "device": value.device}
+            if is_input:
+                op.input_tensors.append(self.hash)
+            else:
+                op.output_tensors.append(self.hash)
         else:
-            self.type = "PythonClass"
-            self.hash = None
-            self.meta = None
-            print(f"!!! {type(value)} !!!")
+            assert False, type(value)
 
 
 class Op:
     name = None
     def __init__(self, args, inp, out, section_stack):
+        self.input_tensors = []
+        self.output_tensors = []
         self.location = traceback.extract_stack()[-4]
-        self.args = {key: Data(value) for key, value in args.items()}
-        self.input = {key: Data(value) for key, value in inp.items()}
-        self.output = {key: Data(value) for key, value in out.items()}
+        self.args = {key: Data(self, value, True) for key, value in args.items()}
+        self.input = {key: Data(self, value, True) for key, value in inp.items()}
+        self.output = {key: Data(self, value, False) for key, value in out.items()}
         self.section_stack = [section for section in section_stack]
         # self.condition_stack = [condition for condition in condition_stack]
         # self.loop_stack = [loop for loop in loop_stack]
-
 
 class Tensor(Op):
     name = "torch.tensor"
@@ -497,6 +486,9 @@ class Tracer:
     def debug(self, text=""):
         if DEBUG:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
+
+    def graph(self):
+        pass
 
     def summary(self):
         for op in self.ops:
