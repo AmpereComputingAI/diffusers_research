@@ -508,6 +508,38 @@ class Tracer:
         if DEBUG:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
+    def graph(self):
+        print("\nGraph:\n")
+        processed = []
+        idx = 0
+        while len(self.ops) - len(processed) > 0:
+            new_block = True
+            for op in self.ops:
+                if id(op) in processed:
+                    continue
+                dep_ids = [id(dep) in processed for dep in op.dependencies]
+                if all(dep_ids):
+                    if new_block:
+                        print("-----------------------")
+                        print(f"Block: {idx}")
+                        idx += 1
+                        if len(op.dependants) < 2:
+                            new_block = False
+                    elif len(op.dependencies) > 1 and id(processed[-1]) in dep_ids:
+                        if all([dep_id in processed for dep_id in dep_ids]):
+                            new_block = True
+                        else:
+                            break
+                    elif len(op.dependencies) != 1 or id(processed[-1]) != id(op.dependencies[0]):
+                        continue
+                    print("------")
+                    print(op.name)
+                    print(op.location)
+                    print(op.input_tensors)
+                    print(op.output_tensors)
+
+                    processed.append(id(op))
+
     def summary(self):
         tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
@@ -529,9 +561,7 @@ class Tracer:
                 for tensor in op.output_tensors:
                     tensor_map[tensor] = op
 
-        import pickle
-        with open("tracer.pkl", "wb") as f:
-            pickle.dump(self, f)
+        self.graph()
 
 
 def main():
