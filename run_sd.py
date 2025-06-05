@@ -487,10 +487,8 @@ class Tracer:
         if DEBUG:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
-    def graph(self):
-        pass
-
     def summary(self):
+        tensor_map = {}
         for op in self.ops:
             print("------")
             print(op.name)
@@ -501,13 +499,14 @@ class Tracer:
             print(op.input_tensors)
             print(op.output_tensors)
             print(" -> ".join([str(section.annotation).split("(")[0] for section in op.section_stack]))
-            # print("Conditions:")
-            # for cond in op.condition_stack:
-            #     print(cond.condition)
-            # print("Loops:")
-            # for loop in op.loop_stack:
-            #     print(loop.body, loop.iter)
-            #     print({key: [val.type, val.hash, val.meta] for key, val in loop.operands.items()})
+
+            if len(op.input_tensors) > 0:
+                for tensor in op.input_tensors:
+                    op.dependencies.append(tensor_map[tensor])
+                    tensor_map[tensor].dependants.append(op)
+            if len(op.output_tensors) > 0:
+                for tensor in op.output_tensors:
+                    tensor_map[tensor] = op
 
 
 def main():
