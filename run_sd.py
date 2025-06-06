@@ -152,8 +152,8 @@ class Mul(Op):
 
 
 
-class TensorMaskedFill_(Op):
-    name = "torch.Tensor.masked_fill_"
+class TensorMaskedFill(Op):
+    name = "torch.Tensor.masked_fill"
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
