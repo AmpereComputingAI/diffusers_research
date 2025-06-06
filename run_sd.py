@@ -492,7 +492,10 @@ class Graph:
 
     def get_var(self, tensor_hash, caller):
         self.vars[tensor_hash].remove_dependant(caller)
-        return self.vars[tensor_hash].code
+        code = self.vars[tensor_hash].code
+        if len(self.vars[tensor_hash].dependants) == 0:
+            self.vars.pop(tensor_hash)
+        return code
 
     def print(self):
         print("\nGraph:\n")
