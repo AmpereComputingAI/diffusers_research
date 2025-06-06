@@ -1,4 +1,5 @@
 import hashlib
+import string
 import traceback
 
 import torch
@@ -76,8 +77,8 @@ class Data:
 class Op:
     name = None
     def __init__(self, args, inp, out, section_stack):
-        self.dependencies = []
-        self.dependants = []
+        self.dependencies = set()
+        self.dependants = set()
         self.input_tensors = []
         self.output_tensors = []
         self.location = traceback.extract_stack()[-4]
@@ -440,6 +441,66 @@ ops = {op.name: op for op in [
 ]}
 
 
+class Graph:
+    def __init__(self, ops):
+        self.ops = ops
+        self.vars = {}
+
+    class Variable:
+        codes = list(string.ascii_uppercase)
+        occupied_codes = []
+
+        def __init__(self, dependants):
+            self.dependants = [dep for dep in dependants]
+            self.code = None
+            self.get_code()
+
+        def get_code(self):
+            for code in self.codes:
+                if code not in self.occupied_codes:
+                    self.code = code
+                    self.occupied_codes.append(code)
+                    break
+            else:
+                assert False
+
+        def free_code(self, code):
+            self.occupied_codes.pop(code)
+
+        def remove_dependant(self, caller):
+            self.dependants.pop(caller)
+            if len(self.dependants) == 0:
+                self.free_code(self.code)
+
+    def new_var(self, tensor_hash, dependants):
+        assert tensor_hash not in self.vars.keys()
+        self.vars[tensor_hash] = self.Variable(dependants)
+        return self.vars[tensor_hash].code
+
+    def get_var(self, tensor_hash, caller):
+        self.vars[tensor_hash].remove_dependant(caller)
+        return self.vars[tensor_hash].code
+
+    def print(self):
+        print("\nGraph:\n")
+        processed = []
+        while len(self.ops) - len(processed) > 0:
+            for op in self.ops:
+                if all([dep in processed for dep in op.dependencies]):
+                    outputs = [self.new_var(tensor, op.dependants) for tensor in op.output_tensors]
+                    if len(outputs) > 0:
+                        outputs = ", ".join(outputs) + " = "
+                    else:
+                        outputs = ""
+                    inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
+                    print(f"{outputs}{op.__class__.__name__}({inputs})")
+                    # print(op.name)
+                    # print(op.location)
+                    # print(op.input_tensors)
+                    # print(op.output_tensors)
+                    processed.append(op)
+
+
 class Tracer:
     def __init__(self):
         self.preloaded_tensors = []
@@ -508,38 +569,6 @@ class Tracer:
         if DEBUG:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
-    def graph(self):
-        print("\nGraph:\n")
-        processed = []
-        idx = 0
-        while len(self.ops) - len(processed) > 0:
-            new_block = True
-            for op in self.ops:
-                if id(op) in processed:
-                    continue
-                dep_ids = [id(dep) for dep in op.dependencies]
-                if all([dep_id in processed for dep_id in dep_ids]):
-                    if new_block:
-                        print("-----------------------")
-                        print(f"Block: {idx}")
-                        idx += 1
-                        if len(op.dependants) < 2:
-                            new_block = False
-                    elif len(op.dependencies) > 1:
-                        if id(processed[-1]) in dep_ids:
-                            break
-                        else:
-                            continue
-                    elif len(op.dependencies) != 1 or id(processed[-1]) != id(op.dependencies[0]):
-                        continue
-                    print("------")
-                    print(op.name)
-                    print(op.location)
-                    print(op.input_tensors)
-                    print(op.output_tensors)
-
-                    processed.append(id(op))
-
     def summary(self):
         tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
@@ -555,13 +584,13 @@ class Tracer:
 
             if len(op.input_tensors) > 0:
                 for tensor in op.input_tensors:
-                    op.dependencies.append(tensor_map[tensor])
-                    tensor_map[tensor].dependants.append(op)
+                    op.dependencies.add(tensor_map[tensor])
+                    tensor_map[tensor].dependants.add(op)
             if len(op.output_tensors) > 0:
                 for tensor in op.output_tensors:
                     tensor_map[tensor] = op
 
-        self.graph()
+        Graph(self.ops).print()
 
 
 def main():
