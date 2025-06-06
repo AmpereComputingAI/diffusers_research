@@ -478,10 +478,10 @@ class Graph:
                 assert False
 
         def free_code(self, code):
-            self.occupied_codes.pop(code)
+            self.occupied_codes.remove(code)
 
         def remove_dependant(self, caller):
-            self.dependants.pop(caller)
+            self.dependants.remove(caller)
             if len(self.dependants) == 0:
                 self.free_code(self.code)
 
