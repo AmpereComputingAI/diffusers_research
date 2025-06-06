@@ -412,7 +412,7 @@ ops = {op.name: op for op in [
     Add,
     Sub,
     Mul,
-    TensorMaskedFill_,
+    TensorMaskedFill,
     Lt,
     Arange,
     Full,
