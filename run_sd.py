@@ -109,18 +109,21 @@ class IsTensor(Op):
 class TensorSize(Op):
     name = "torch.Tensor.size"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
 class TensorTo(Op):
     name = "torch.Tensor.to"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
 class TensorView(Op):
     name = "torch.Tensor.view"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
@@ -152,12 +155,14 @@ class Mul(Op):
 class TensorMaskedFill_(Op):
     name = "torch.Tensor.masked_fill_"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
 class TensorArgmax(Op):
     name = "torch.Tensor.argmax"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
@@ -233,6 +238,7 @@ class TensorExpand(Op):
     name = "torch.Tensor.expand"
 
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
@@ -240,6 +246,7 @@ class TensorSelection(Op):
     name = "torch.Tensor.selection"
 
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
@@ -308,24 +315,28 @@ class SDPA(Op):
 class TensorTranspose(Op):
     name = "torch.Tensor.transpose"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
 class TensorReshape(Op):
     name = "torch.Tensor.reshape"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
 class TensorRepeat(Op):
     name = "torch.Tensor.repeat"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
 class TensorUnsqueeze(Op):
     name = "torch.Tensor.unsqueeze"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
@@ -362,6 +373,7 @@ class MatMul(Op):
 class TensorPermute(Op):
     name = "torch.Tensor.permute"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
@@ -380,6 +392,7 @@ class Tanh(Op):
 class TensorTypeAs(Op):
     name = "torch.Tensor.type_as"
     def __init__(self, args, inp, out, section):
+        assert "input" in inp
         super().__init__(args, inp, out, section)
 
 
