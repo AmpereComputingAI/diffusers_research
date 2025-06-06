@@ -480,14 +480,19 @@ class Graph:
         def free_code(self, code):
             self.occupied_codes.remove(code)
 
+        def add_dependants(self, dependants):
+            self.dependants += [dep for dep in dependants]
+
         def remove_dependant(self, caller):
             self.dependants.remove(caller)
             if len(self.dependants) == 0:
                 self.free_code(self.code)
 
     def new_var(self, tensor_hash, dependants):
-        assert tensor_hash not in self.vars.keys()
-        self.vars[tensor_hash] = self.Variable(dependants)
+        if tensor_hash in self.vars.keys():
+            self.vars[tensor_hash].add_dependants(dependants)
+        else:
+            self.vars[tensor_hash] = self.Variable(dependants)
         return self.vars[tensor_hash].code
 
     def get_var(self, tensor_hash, caller):
