@@ -35,7 +35,7 @@ def hash_tensor(tensor):
     tensor_data_ptr = tensor.storage().data_ptr()
     tensor = tensor.clone().detach()
     tensor_bytes = tensor.to(dtype=torch.float32).cpu().contiguous().numpy().tobytes()
-    return str(tensor_data_ptr) + hashlib.sha256(tensor_bytes).hexdigest()
+    return str(tensor_data_ptr) + "_" + hashlib.sha256(tensor_bytes).hexdigest()
 
 
 class Data:
@@ -597,15 +597,15 @@ class Tracer:
     def summary(self):
         tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
-            # print("------")
-            # print(op.name)
-            # print(op.location)
-            # print({key: [val.type, val.hash, val.meta] for key, val in op.args.items()})
-            # print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
-            # print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
-            # print(op.input_tensors)
-            # print(op.output_tensors)
-            # print(" -> ".join([str(section.annotation).split("(")[0] for section in op.section_stack]))
+            print("------")
+            print(op.name)
+            print(op.location)
+            print({key: [val.type, val.hash, val.meta] for key, val in op.args.items()})
+            print({key: [val.type, val.hash, val.meta] for key, val in op.input.items()})
+            print({key: [val.type, val.hash, val.meta] for key, val in op.output.items()})
+            print(op.input_tensors)
+            print(op.output_tensors)
+            print(" -> ".join([str(section.annotation).split("(")[0] for section in op.section_stack]))
 
             if len(op.input_tensors) > 0:
                 for tensor in op.input_tensors:
