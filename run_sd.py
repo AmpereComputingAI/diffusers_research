@@ -469,8 +469,8 @@ class Graph:
         self.vars = {}
 
     class Variable:
-        #codes = [str(i) for i in range(10000)]
-        codes = list(string.ascii_uppercase)
+        codes = [str(i) for i in range(10000)]
+        #codes = list(string.ascii_uppercase)
         occupied_codes = []
 
         def __init__(self, dependants):
