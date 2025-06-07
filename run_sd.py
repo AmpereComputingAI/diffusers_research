@@ -496,6 +496,7 @@ class Graph:
         return self.vars[tensor_hash].code
 
     def get_var(self, tensor_hash, caller):
+        print(tensor_hash)
         self.vars[tensor_hash].remove_dependant(caller)
         code = self.vars[tensor_hash].code
         if len(self.vars[tensor_hash].dependants) == 0:
@@ -508,9 +509,9 @@ class Graph:
         while len(self.ops) - len(processed) > 0:
             for op in self.ops:
                 if all([dep in processed for dep in op.dependencies]):
-                    print(op.name)
-                    print(op.location)
-                    print(self.vars)
+                    # print(op.name)
+                    # print(op.location)
+                    # print(self.vars)
                     outputs = [self.new_var(tensor, op.dependants) for tensor in op.output_tensors]
                     if len(outputs) > 0:
                         outputs = ", ".join(outputs) + " = "
