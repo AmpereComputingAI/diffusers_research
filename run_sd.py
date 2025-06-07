@@ -469,7 +469,8 @@ class Graph:
         self.vars = {}
 
     class Variable:
-        codes = [str(i) for i in range(10000)]
+        #codes = [str(i) for i in range(10000)]
+        codes = list(string.ascii_uppercase)
         occupied_codes = []
 
         def __init__(self, dependants):
@@ -500,8 +501,10 @@ class Graph:
     def new_var(self, tensor_hash, dependants):
         if tensor_hash in self.vars.keys():
             self.vars[tensor_hash].add_dependants(dependants)
-        else:
+        elif len(dependants) > 0:
             self.vars[tensor_hash] = self.Variable(dependants)
+        else:
+            return "_"
         return self.vars[tensor_hash].code
 
     def get_var(self, tensor_hash, caller):
