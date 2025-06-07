@@ -154,6 +154,11 @@ class Mul(Op):
         super().__init__(args, inp, out, section)
 
 
+class TensorContiguous(Op):
+    name = "torch.Tensor.contiguous"
+    def __init__(self, args, inp, out, section):
+        super().__init__(args, inp, out, section)
+
 
 class TensorMaskedFill(Op):
     name = "torch.Tensor.masked_fill"
@@ -453,7 +458,8 @@ ops = {op.name: op for op in [
     SoftMax,
     Tanh,
     Pad,
-    TensorSelection
+    TensorSelection,
+    TensorContiguous
 ]}
 
 
