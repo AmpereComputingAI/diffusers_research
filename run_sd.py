@@ -524,12 +524,12 @@ class Graph:
                     # print(op.name)
                     # print(op.location)
                     # print(self.vars)
+                    inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
                     outputs = [self.new_var(tensor, op.dependants[tensor]) for tensor in op.output_tensors]
                     if len(outputs) > 0:
                         outputs = ", ".join(outputs) + " = "
                     else:
                         outputs = ""
-                    inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
                     print(f"{outputs}{op.__class__.__name__}({inputs})")
                     # print(op.name)
                     # print(op.location)
