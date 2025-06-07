@@ -284,7 +284,10 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             )
 
         with tracer.section(self.text_encoder_3):
-            prompt_embeds = self.text_encoder_3(tracer, text_input_ids.to(device))[0]
+            text_input_ids_ = text_input_ids.to(device)
+            tracer.add_op("torch.Tensor.to", {"input": text_input_ids, "device": device}, {"output": text_input_ids_})
+            text_input_ids = text_input_ids_
+            prompt_embeds = self.text_encoder_3(tracer, text_input_ids)[0]
 
         dtype = self.text_encoder_3.dtype
         prompt_embeds_ = prompt_embeds.to(dtype=dtype, device=device)
