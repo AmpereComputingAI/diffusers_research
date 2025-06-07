@@ -32,9 +32,10 @@ class Section:
 
 
 def hash_tensor(tensor):
+    tensor_id = id(tensor)
     tensor = tensor.clone().detach()
     tensor_bytes = tensor.to(dtype=torch.float32).cpu().contiguous().numpy().tobytes()
-    return hashlib.sha256(tensor_bytes).hexdigest()
+    return str(tensor_id) + hashlib.sha256(tensor_bytes).hexdigest()
 
 
 class Data:
@@ -594,7 +595,7 @@ class Tracer:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
     def summary(self):
-        tensor_map = {tensor.output_tensors[0]: [tensor] for tensor in self.preloaded_tensors}
+        tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
             # print("------")
             # print(op.name)
@@ -608,15 +609,11 @@ class Tracer:
 
             if len(op.input_tensors) > 0:
                 for tensor in op.input_tensors:
-                    for op_ in tensor_map[tensor]:
-                        op.dependencies.add(op_)
-                        op_.dependants.add(op)
+                    op.dependencies.add(tensor_map[tensor])
+                    tensor_map[tensor].dependants.add(op)
             if len(op.output_tensors) > 0:
                 for tensor in op.output_tensors:
-                    if tensor in tensor_map.keys():
-                        tensor_map[tensor].append(op)
-                    else:
-                        tensor_map[tensor] = [op]
+                    tensor_map[tensor] = op
 
         Graph(self.ops).print()
 
