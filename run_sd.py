@@ -71,6 +71,8 @@ class Data:
                 op.input_tensors.append(self.hash)
             else:
                 op.output_tensors.append(self.hash)
+        elif isinstance(value, torch.device):
+            self.meta = {"value": value}
         else:
             assert False, type(value)
 
