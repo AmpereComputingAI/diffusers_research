@@ -71,6 +71,7 @@ class Data:
                 op.input_tensors.append(self.hash)
             else:
                 op.output_tensors.append(self.hash)
+                op.dependants[self.hash] = set()
         elif isinstance(value, torch.device):
             self.meta = {"value": value}
         else:
@@ -81,7 +82,7 @@ class Op:
     name = None
     def __init__(self, args, inp, out, section_stack):
         self.dependencies = set()
-        self.dependants = set()
+        self.dependants = {}
         self.input_tensors = []
         self.output_tensors = []
         self.location = traceback.extract_stack()[-4]
@@ -469,8 +470,8 @@ class Graph:
         self.vars = {}
 
     class Variable:
-        codes = [str(i) for i in range(10000)]
-        #codes = list(string.ascii_uppercase)
+        #codes = [str(i) for i in range(10000)]
+        codes = list(string.ascii_uppercase)
         occupied_codes = []
 
         def __init__(self, dependants):
@@ -523,7 +524,7 @@ class Graph:
                     # print(op.name)
                     # print(op.location)
                     # print(self.vars)
-                    outputs = [self.new_var(tensor, op.dependants) for tensor in op.output_tensors]
+                    outputs = [self.new_var(tensor, op[tensor].dependants) for tensor in op.output_tensors]
                     if len(outputs) > 0:
                         outputs = ", ".join(outputs) + " = "
                     else:
@@ -535,7 +536,7 @@ class Graph:
                     # print(op.input_tensors)
                     # print(op.output_tensors)
                     processed.append(op)
-        print(self.vars)
+        print(f"Vars left out: {len(self.vars)}")
 
 
 class Tracer:
@@ -622,7 +623,7 @@ class Tracer:
             if len(op.input_tensors) > 0:
                 for tensor in op.input_tensors:
                     op.dependencies.add(tensor_map[tensor])
-                    tensor_map[tensor].dependants.add(op)
+                    tensor_map[tensor].dependants[tensor].add(op)
             if len(op.output_tensors) > 0:
                 for tensor in op.output_tensors:
                     tensor_map[tensor] = op
