@@ -594,7 +594,7 @@ class Tracer:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
     def summary(self):
-        tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
+        tensor_map = {tensor.output_tensors[0]: [tensor] for tensor in self.preloaded_tensors}
         for op in self.ops:
             # print("------")
             # print(op.name)
@@ -608,11 +608,15 @@ class Tracer:
 
             if len(op.input_tensors) > 0:
                 for tensor in op.input_tensors:
-                    op.dependencies.add(tensor_map[tensor])
-                    tensor_map[tensor].dependants.add(op)
+                    for op_ in tensor_map[tensor]:
+                        op.dependencies.add(op_)
+                        op_.dependants.add(op)
             if len(op.output_tensors) > 0:
                 for tensor in op.output_tensors:
-                    tensor_map[tensor] = op
+                    if tensor in tensor_map.keys():
+                        tensor_map[tensor].append(op)
+                    else:
+                        tensor_map[tensor] = [op]
 
         Graph(self.ops).print()
 
