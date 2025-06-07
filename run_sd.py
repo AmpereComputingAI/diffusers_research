@@ -524,7 +524,7 @@ class Graph:
                     # print(op.name)
                     # print(op.location)
                     # print(self.vars)
-                    outputs = [self.new_var(tensor, op[tensor].dependants) for tensor in op.output_tensors]
+                    outputs = [self.new_var(tensor, op.dependants[tensor]) for tensor in op.output_tensors]
                     if len(outputs) > 0:
                         outputs = ", ".join(outputs) + " = "
                     else:
