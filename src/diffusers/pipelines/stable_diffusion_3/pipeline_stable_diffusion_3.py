@@ -346,7 +346,10 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
             )
 
         with tracer.section(text_encoder):
-            prompt_embeds = text_encoder(tracer, text_input_ids.to(device), output_hidden_states=True)
+            text_input_ids_ = text_input_ids.to(device)
+            tracer.add_op("torch.Tensor.to", {"input": text_input_ids, "device": device}, {"output": text_input_ids_})
+            text_input_ids = text_input_ids_
+            prompt_embeds = text_encoder(tracer, text_input_ids, output_hidden_states=True)
             pooled_prompt_embeds = prompt_embeds[0]
 
         if clip_skip is None:
