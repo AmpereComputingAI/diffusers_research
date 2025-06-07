@@ -609,6 +609,7 @@ class Tracer:
 
             if len(op.input_tensors) > 0:
                 for tensor in op.input_tensors:
+                    print(tensor_map)
                     op.dependencies.add(tensor_map[tensor])
                     tensor_map[tensor].dependants.add(op)
             if len(op.output_tensors) > 0:
