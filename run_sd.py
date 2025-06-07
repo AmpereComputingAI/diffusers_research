@@ -32,10 +32,10 @@ class Section:
 
 
 def hash_tensor(tensor):
-    tensor_id = id(tensor)
+    tensor_data_ptr = tensor.storage().data_ptr()
     tensor = tensor.clone().detach()
     tensor_bytes = tensor.to(dtype=torch.float32).cpu().contiguous().numpy().tobytes()
-    return str(tensor_id) + hashlib.sha256(tensor_bytes).hexdigest()
+    return str(tensor_data_ptr) + hashlib.sha256(tensor_bytes).hexdigest()
 
 
 class Data:
