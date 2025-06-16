@@ -530,13 +530,16 @@ class Graph:
                         outputs = ", ".join(outputs) + " = "
                     else:
                         outputs = ""
+                        assert False, op.location
                     print(f"{outputs}{op.__class__.__name__}({inputs})")
                     # print(op.name)
                     # print(op.location)
                     # print(op.input_tensors)
                     # print(op.output_tensors)
                     processed.append(op)
-        print(f"Vars left out: {len(self.vars)}")
+        print(f"\nVars left out: {len(self.vars)}")
+        for var in self.vars.values():
+            print(var.code)
 
 
 class Tracer:
