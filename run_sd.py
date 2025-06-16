@@ -758,10 +758,17 @@ class Graph:
     def print(self):
         processed_ops = []
         ops = self.ops.copy()
+        x = -1
         while len(ops) > 0:
             print("----")
             print(len(processed_ops))
             print(len(ops))
+            if len(processed_ops) == x:
+                for dep in ops[0]:
+                    if dep not in processed_ops:
+                        print(dep)
+                sd
+            x = len(processed_ops)
             for i, op in enumerate(ops):
                 if all([dep in processed_ops for dep in op.dependencies]):
                     # skip = False
