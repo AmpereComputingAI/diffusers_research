@@ -175,7 +175,7 @@ class TensorMaskedFill(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
-        assert len(self.input_tensors) == 1, self.location
+        assert len(self.input_tensors) == 2, self.location
 
 
 class TensorArgmax(Op):
