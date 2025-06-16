@@ -832,6 +832,7 @@ class Graph:
         print(f"Outstanding vars: {len(self.vars)}")
         for var in self.vars.values():
             print(var.dependants)
+            print(var.done)
 
 
 def main():
