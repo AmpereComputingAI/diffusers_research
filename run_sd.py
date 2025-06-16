@@ -756,8 +756,8 @@ class Graph:
             #     print(dep.location)
 
     class Variable:
-        #codes = list(string.ascii_uppercase)
-        codes = [str(i) for i in range(10000)]
+        codes = list(string.ascii_uppercase)
+        #codes = [str(i) for i in range(10000)]
         occupied_codes = []
 
         def __init__(self, dependants):
@@ -829,6 +829,8 @@ class Graph:
                     break
 
         print(f"Outstanding vars: {len(self.vars)}")
+        for var in self.vars:
+            print(var.dependants)
 
 
 def main():
