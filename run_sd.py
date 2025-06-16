@@ -102,12 +102,14 @@ class Tensor(Op):
     name = "torch.tensor"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 0
 
 
 class IsTensor(Op):
     name = "torch.is_tensor"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1
 
 
 class TensorSize(Op):
@@ -115,6 +117,7 @@ class TensorSize(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1
 
 
 class TensorTo(Op):
@@ -122,6 +125,7 @@ class TensorTo(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1
 
 
 class TensorView(Op):
@@ -129,36 +133,42 @@ class TensorView(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1
 
 
 class nnEmbedding(Op):
     name = "torch.nn.Embedding"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1
 
 
 class Add(Op):
     name = "torch.add"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 2, self.location
 
 
 class Sub(Op):
     name = "torch.sub"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 2, self.location
 
 
 class Mul(Op):
     name = "torch.mul"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 2, self.location
 
 
 class TensorContiguous(Op):
     name = "torch.Tensor.contiguous"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorMaskedFill(Op):
@@ -166,6 +176,7 @@ class TensorMaskedFill(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorArgmax(Op):
@@ -173,12 +184,14 @@ class TensorArgmax(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Lt(Op):
     name = "torch.lt"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) >= 1, self.location
 
 
 class Arange(Op):
@@ -186,6 +199,7 @@ class Arange(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 0, self.location
 
 
 class Full(Op):
@@ -193,6 +207,7 @@ class Full(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 0, self.location
 
 
 class Zeros(Op):
@@ -200,48 +215,56 @@ class Zeros(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 0, self.location
 
 class Ones(Op):
     name = "torch.ones"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 0, self.location
 
 class Cat(Op):
     name = "torch.cat"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) >= 2, self.location
 
 class OnesLike(Op):
     name = "torch.ones_like"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 class ZerosLike(Op):
     name = "torch.zeros_like"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 class FullLike(Op):
     name = "torch.full_like"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 class Min(Op):
     name = "torch.min"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 class Where(Op):
     name = "torch.where"
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) >= 1, self.location
 
 class TensorExpand(Op):
     name = "torch.Tensor.expand"
@@ -249,6 +272,7 @@ class TensorExpand(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorSelection(Op):
@@ -257,6 +281,7 @@ class TensorSelection(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Tril(Op):
@@ -264,6 +289,7 @@ class Tril(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Pow(Op):
@@ -271,6 +297,7 @@ class Pow(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Div(Op):
@@ -278,6 +305,7 @@ class Div(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 2, self.location
 
 
 class Log(Op):
@@ -285,6 +313,7 @@ class Log(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Mean(Op):
@@ -292,6 +321,7 @@ class Mean(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class RSqrt(Op):
@@ -299,12 +329,14 @@ class RSqrt(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Linear(Op):
     name = "torch.nn.Linear"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class LayerNorm(Op):
@@ -312,6 +344,7 @@ class LayerNorm(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class SDPA(Op):
@@ -319,6 +352,7 @@ class SDPA(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) >= 3, self.location
 
 
 class TensorTranspose(Op):
@@ -326,6 +360,7 @@ class TensorTranspose(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorReshape(Op):
@@ -333,6 +368,7 @@ class TensorReshape(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorRepeat(Op):
@@ -340,6 +376,7 @@ class TensorRepeat(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorUnsqueeze(Op):
@@ -347,24 +384,28 @@ class TensorUnsqueeze(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Sigmoid(Op):
     name = "torch.sigmoid"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Abs(Op):
     name = "torch.abs"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Gelu(Op):
     name = "torch.nn.functional.gelu"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class ApexFusedRMSNorm(Op):
@@ -377,6 +418,7 @@ class MatMul(Op):
     name = "torch.matmul"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 2, self.location
 
 
 class TensorPermute(Op):
@@ -384,18 +426,21 @@ class TensorPermute(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class SoftMax(Op):
     name = "torch.nn.functional.softmax"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Tanh(Op):
     name = "torch.tanh"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class TensorTypeAs(Op):
@@ -403,6 +448,7 @@ class TensorTypeAs(Op):
     def __init__(self, args, inp, out, section):
         assert "input" in inp
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 class Pad(Op):
@@ -410,6 +456,7 @@ class Pad(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
+        assert len(self.input_tensors) == 1, self.location
 
 
 ops = {op.name: op for op in [
