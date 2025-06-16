@@ -529,6 +529,8 @@ class Graph:
                     # print(self.vars)
                     for tensor in op.output_tensors:
                         if tensor in self.vars:
+                            print(tensor not in op.input_tensors)
+                            print(len(self.vars[tensor].dependants))
                             if tensor not in op.input_tensors or len(self.vars[tensor].dependants) > 1:
                                 continue
                     inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
