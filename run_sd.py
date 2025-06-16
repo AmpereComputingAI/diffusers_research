@@ -829,7 +829,7 @@ class Graph:
                     break
 
         print(f"Outstanding vars: {len(self.vars)}")
-        for var in self.vars:
+        for var in self.vars.values():
             print(var.dependants)
 
 
