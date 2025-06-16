@@ -256,7 +256,7 @@ class Min(Op):
 
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
-        assert len(self.input_tensors) == 1, self.location
+        assert 3 > len(self.input_tensors) >= 1, self.location
 
 class Where(Op):
     name = "torch.where"
