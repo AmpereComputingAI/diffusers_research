@@ -640,14 +640,22 @@ class Tracer:
             # print(op.output_tensors)
             # print(" -> ".join([str(section.annotation).split("(")[0] for section in op.section_stack]))
 
-            if len(op.input_tensors) > 0:
-                for tensor in op.input_tensors:
-                    op.dependencies.add(tensor_map[tensor])
-                    tensor_map[tensor].dependants[tensor].add(op)
-            if len(op.output_tensors) > 0:
-                for tensor in op.output_tensors:
-                    tensor_map[tensor] = op
+            for tensor in op.input_tensors:
+                op.dependencies.add(tensor_map[tensor])
+                tensor_map[tensor].dependants[tensor].add(op)
 
+            print("------")
+            print(op.name)
+            print(op.location)
+            print("Deps:")
+            for dep in op.dependencies:
+                print(dep.name)
+                print(dep.location)
+
+            for tensor in op.output_tensors:
+                tensor_map[tensor] = op
+
+        sf
         Graph(self.ops).print()
 
 
