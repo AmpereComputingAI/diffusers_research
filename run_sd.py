@@ -759,6 +759,9 @@ class Graph:
         processed_ops = []
         ops = self.ops.copy()
         while len(ops) > 0:
+            print("----")
+            print(len(processed_ops))
+            print(len(ops))
             for i, op in enumerate(ops):
                 if all([dep in processed_ops for dep in op.dependencies]):
                     # skip = False
