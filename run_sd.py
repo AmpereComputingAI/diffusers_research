@@ -109,7 +109,6 @@ class IsTensor(Op):
     name = "torch.is_tensor"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
-        assert len(self.input_tensors) == 1
 
 
 class TensorSize(Op):
