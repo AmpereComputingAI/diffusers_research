@@ -146,21 +146,21 @@ class Add(Op):
     name = "torch.add"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
-        assert len(self.input_tensors) == 2, self.location
+        assert 3 > len(self.input_tensors) >= 1, self.location
 
 
 class Sub(Op):
     name = "torch.sub"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
-        assert len(self.input_tensors) == 2, self.location
+        assert 3 > len(self.input_tensors) >= 1, self.location
 
 
 class Mul(Op):
     name = "torch.mul"
     def __init__(self, args, inp, out, section):
         super().__init__(args, inp, out, section)
-        assert len(self.input_tensors) == 2, self.location
+        assert 3 > len(self.input_tensors) >= 1, self.location
 
 
 class TensorContiguous(Op):
