@@ -517,6 +517,8 @@ class Graph:
         except ValueError as e:
             print(caller.location)
             print(self.vars[tensor_hash].code)
+            print(self.vars[tensor_hash].dependants)
+            print(caller)
             raise e
         code = self.vars[tensor_hash].code
         if len(self.vars[tensor_hash].dependants) == 0:
