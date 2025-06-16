@@ -464,99 +464,99 @@ ops = {op.name: op for op in [
 ]}
 
 
-class Graph:
-    def __init__(self, ops):
-        self.ops = ops
-        self.vars = {}
-
-    class Variable:
-        codes = [str(i) for i in range(10000)]
-        #codes = list(string.ascii_uppercase)
-        occupied_codes = []
-
-        def __init__(self, location, dependants):
-            self.latest_call = location
-            self.dependants = [dep for dep in dependants]
-            self.code = None
-            self.get_code()
-
-        def get_code(self):
-            for code in self.codes:
-                if code not in self.occupied_codes:
-                    self.code = code
-                    self.occupied_codes.append(code)
-                    break
-            else:
-                assert False
-
-        def free_code(self, code):
-            self.occupied_codes.remove(code)
-
-        def add_dependants(self, dependants):
-            self.dependants += [dep for dep in dependants]
-
-        def remove_dependant(self, caller):
-            self.dependants.remove(caller)
-            if len(self.dependants) == 0:
-                self.free_code(self.code)
-
-    def new_var(self, tensor_hash, op):
-        # if tensor_hash in self.vars.keys():
-        #     self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
-        #     self.vars[tensor_hash].latest_call = op.location
-        assert tensor_hash not in self.vars
-        if len(op.dependants[tensor_hash]) > 0:
-            self.vars[tensor_hash] = self.Variable(op.location, op.dependants[tensor_hash])
-        else:
-            return "_"
-        return self.vars[tensor_hash].code
-
-    def get_var(self, tensor_hash, caller):
-        try:
-            self.vars[tensor_hash].remove_dependant(caller)
-        except ValueError as e:
-            print(caller.location)
-            print(self.vars[tensor_hash].code)
-            print(self.vars[tensor_hash].dependants)
-            print(caller)
-            raise e
-        code = self.vars[tensor_hash].code
-        if len(self.vars[tensor_hash].dependants) == 0:
-            self.vars.pop(tensor_hash)
-        return code
-
-    def print(self):
-        print("\nGraph:\n")
-        processed = []
-        while len(self.ops) - len(processed) > 0:
-            for op in self.ops:
-                if all([dep in processed for dep in op.dependencies]):
-                    # print(op.name)
-                    # print(op.location)
-                    # print(self.vars)
-                    skip = False
-                    for tensor in op.output_tensors:
-                        if tensor in self.vars:
-                            if tensor not in op.input_tensors or len(self.vars[tensor].dependants) > 1:
-                                skip = True
-                                break
-                    if skip:
-                        continue
-                    inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
-                    outputs = [self.new_var(tensor, op) for tensor in op.output_tensors]
-                    if len(outputs) > 0:
-                        outputs = ", ".join(outputs) + " = "
-                    else:
-                        outputs = ""
-                    print(f"{outputs}{op.__class__.__name__}({inputs}) [{op.location}]")
-                    # print(op.name)
-                    # print(op.location)
-                    # print(op.input_tensors)
-                    # print(op.output_tensors)
-                    processed.append(op)
-        print(f"\nVars left out: {len(self.vars)}")
-        for var in self.vars.values():
-            print(var.latest_call)
+# class Graph:
+#     def __init__(self, ops):
+#         self.ops = ops
+#         self.vars = {}
+#
+#     class Variable:
+#         codes = [str(i) for i in range(10000)]
+#         #codes = list(string.ascii_uppercase)
+#         occupied_codes = []
+#
+#         def __init__(self, location, dependants):
+#             self.latest_call = location
+#             self.dependants = [dep for dep in dependants]
+#             self.code = None
+#             self.get_code()
+#
+#         def get_code(self):
+#             for code in self.codes:
+#                 if code not in self.occupied_codes:
+#                     self.code = code
+#                     self.occupied_codes.append(code)
+#                     break
+#             else:
+#                 assert False
+#
+#         def free_code(self, code):
+#             self.occupied_codes.remove(code)
+#
+#         def add_dependants(self, dependants):
+#             self.dependants += [dep for dep in dependants]
+#
+#         def remove_dependant(self, caller):
+#             self.dependants.remove(caller)
+#             if len(self.dependants) == 0:
+#                 self.free_code(self.code)
+#
+#     def new_var(self, tensor_hash, op):
+#         # if tensor_hash in self.vars.keys():
+#         #     self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
+#         #     self.vars[tensor_hash].latest_call = op.location
+#         assert tensor_hash not in self.vars
+#         if len(op.dependants[tensor_hash]) > 0:
+#             self.vars[tensor_hash] = self.Variable(op.location, op.dependants[tensor_hash])
+#         else:
+#             return "_"
+#         return self.vars[tensor_hash].code
+#
+#     def get_var(self, tensor_hash, caller):
+#         try:
+#             self.vars[tensor_hash].remove_dependant(caller)
+#         except ValueError as e:
+#             print(caller.location)
+#             print(self.vars[tensor_hash].code)
+#             print(self.vars[tensor_hash].dependants)
+#             print(caller)
+#             raise e
+#         code = self.vars[tensor_hash].code
+#         if len(self.vars[tensor_hash].dependants) == 0:
+#             self.vars.pop(tensor_hash)
+#         return code
+#
+#     def print(self):
+#         print("\nGraph:\n")
+#         processed = []
+#         while len(self.ops) - len(processed) > 0:
+#             for op in self.ops:
+#                 if all([dep in processed for dep in op.dependencies]):
+#                     # print(op.name)
+#                     # print(op.location)
+#                     # print(self.vars)
+#                     skip = False
+#                     for tensor in op.output_tensors:
+#                         if tensor in self.vars:
+#                             if tensor not in op.input_tensors or len(self.vars[tensor].dependants) > 1:
+#                                 skip = True
+#                                 break
+#                     if skip:
+#                         continue
+#                     inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
+#                     outputs = [self.new_var(tensor, op) for tensor in op.output_tensors]
+#                     if len(outputs) > 0:
+#                         outputs = ", ".join(outputs) + " = "
+#                     else:
+#                         outputs = ""
+#                     print(f"{outputs}{op.__class__.__name__}({inputs}) [{op.location}]")
+#                     # print(op.name)
+#                     # print(op.location)
+#                     # print(op.input_tensors)
+#                     # print(op.output_tensors)
+#                     processed.append(op)
+#         print(f"\nVars left out: {len(self.vars)}")
+#         for var in self.vars.values():
+#             print(var.latest_call)
 
 
 class Tracer:
@@ -628,6 +628,14 @@ class Tracer:
             print(f"DEBUG: {traceback.extract_stack()[-2]} [{text}]")
 
     def summary(self):
+        Graph(self.ops, self.preloaded_tensors).print()
+
+
+class Graph:
+    def __init__(self, ops, preloaded_tensors):
+        self.vars = {}
+        self.ops = ops
+        self.preloaded_tensors = preloaded_tensors
         tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
         for op in self.ops:
             # print("------")
@@ -644,19 +652,74 @@ class Tracer:
                 op.dependencies.add(tensor_map[tensor])
                 tensor_map[tensor].dependants[tensor].add(op)
 
-            print("------")
-            print(op.name)
-            print(op.location)
-            print("Deps:")
-            for dep in op.dependencies:
-                print(dep.name)
-                print(dep.location)
-
             for tensor in op.output_tensors:
                 tensor_map[tensor] = op
 
-        sf
-        Graph(self.ops).print()
+            # print("------")
+            # print(op.name)
+            # print(op.location)
+            # print("Deps:")
+            # for dep in op.dependencies:
+            #     print(dep.name)
+            #     print(dep.location)
+
+    class Variable:
+        codes = list(string.ascii_uppercase)
+        occupied_codes = []
+
+        def __init__(self, dependants):
+            self.dependants = [dep for dep in dependants]
+            self.code = None
+            self.get_code()
+
+        def get_code(self):
+            for code in self.codes:
+                if code not in self.occupied_codes:
+                    self.code = code
+                    self.occupied_codes.append(code)
+                    break
+            else:
+                assert False
+
+        def free_code(self, code):
+            self.occupied_codes.remove(code)
+
+        def remove_dependant(self, caller):
+            self.dependants.remove(caller)
+            if len(self.dependants) == 0:
+                self.free_code(self.code)
+                return True
+            else:
+                return False
+
+    def get_var(self, tensor_hash, op):
+        code = self.vars[tensor_hash].code
+        if self.vars[tensor_hash].remove_dependant(op):
+            self.vars.pop(tensor_hash)
+        return code
+
+    def new_var(self, tensor_hash, op):
+        assert tensor_hash not in self.vars.keys()
+        self.vars[tensor_hash] = self.Variable(op.dependants[tensor_hash])
+        return self.vars[tensor_hash].code
+
+    def print(self):
+        processed_ops = set()
+        ops = self.ops.copy()
+        while len(ops) > 0:
+            for i, op in enumerate(ops):
+                if all([dep in processed_ops for dep in op.dependencies]):
+                    inputs = ", ".join([self.get_var(tensor_hash, op) for tensor_hash in op.input_tensors])
+
+                    outputs = [self.new_var(tensor_hash, op) for tensor_hash in op.output_tensors]
+                    if len(outputs) > 0:
+                        outputs = ", ".join(outputs) + " = "
+                    else:
+                        outputs = ""
+
+                    print(f"{outputs}{op.__class__.__name__}({inputs})")
+                    processed_ops.add(ops.pop(i))
+                    break
 
 
 def main():
