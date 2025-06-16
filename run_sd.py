@@ -758,18 +758,7 @@ class Graph:
     def print(self):
         processed_ops = []
         ops = self.ops.copy()
-        x = -1
         while len(ops) > 0:
-            print("----")
-            print(len(processed_ops))
-            print(len(ops))
-            if len(processed_ops) == x:
-                for dep in ops[0].dependencies:
-                    if dep not in processed_ops:
-                        print(dep)
-                        print(dep.dependencies)
-                sd
-            x = len(processed_ops)
             for i, op in enumerate(ops):
                 if all([dep in processed_ops or dep in self.preloaded_tensors.values() for dep in op.dependencies]):
                     # skip = False
@@ -791,6 +780,8 @@ class Graph:
                     print(f"{outputs}{op.__class__.__name__}({inputs})")
                     processed_ops.append(ops.pop(i))
                     break
+
+        print(f"Outstanding vars: {len(self.vars)}")
 
 
 def main():
