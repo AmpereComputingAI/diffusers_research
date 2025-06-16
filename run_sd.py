@@ -664,7 +664,8 @@ class Graph:
             #     print(dep.location)
 
     class Variable:
-        codes = list(string.ascii_uppercase)
+        #codes = list(string.ascii_uppercase)
+        codes = [str(i) for i in range(10000)]
         occupied_codes = []
 
         def __init__(self, dependants):
