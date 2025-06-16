@@ -685,6 +685,9 @@ class Graph:
         def free_code(self, code):
             self.occupied_codes.remove(code)
 
+        def add_dependants(self, dependants):
+            self.dependants += [dep for dep in dependants]
+
         def remove_dependant(self, caller):
             self.dependants.remove(caller)
             if len(self.dependants) == 0:
@@ -700,8 +703,10 @@ class Graph:
         return code
 
     def new_var(self, tensor_hash, op):
-        assert tensor_hash not in self.vars.keys()
-        self.vars[tensor_hash] = self.Variable(op.dependants[tensor_hash])
+        if tensor_hash in self.vars.keys():
+            self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
+        else:
+            self.vars[tensor_hash] = self.Variable(op.dependants[tensor_hash])
         return self.vars[tensor_hash].code
 
     def print(self):
@@ -710,12 +715,12 @@ class Graph:
         while len(ops) > 0:
             for i, op in enumerate(ops):
                 if all([dep in processed_ops for dep in op.dependencies]):
-                    skip = False
-                    for tensor_hash in op.output_tensors:
-                        if tensor_hash in self.vars:
-                            skip = True
-                    if skip:
-                        continue
+                    # skip = False
+                    # for tensor_hash in op.output_tensors:
+                    #     if tensor_hash in self.vars:
+                    #         skip = True
+                    # if skip:
+                    #     continue
                     #print(op.location)
                     inputs = ", ".join([self.get_var(tensor_hash, op) for tensor_hash in op.input_tensors])
 
