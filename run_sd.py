@@ -530,7 +530,6 @@ class Graph:
                         outputs = ", ".join(outputs) + " = "
                     else:
                         outputs = ""
-                        assert False, op.location
                     print(f"{outputs}{op.__class__.__name__}({inputs})")
                     # print(op.name)
                     # print(op.location)
