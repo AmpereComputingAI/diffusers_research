@@ -530,8 +530,6 @@ class Graph:
                     skip = False
                     for tensor in op.output_tensors:
                         if tensor in self.vars:
-                            print(tensor not in op.input_tensors)
-                            print(len(self.vars[tensor].dependants))
                             if tensor not in op.input_tensors or len(self.vars[tensor].dependants) > 1:
                                 skip = True
                                 break
@@ -543,7 +541,7 @@ class Graph:
                         outputs = ", ".join(outputs) + " = "
                     else:
                         outputs = ""
-                    print(f"{outputs}{op.__class__.__name__}({inputs})")
+                    print(f"{outputs}{op.__class__.__name__}({inputs}) [{op.location}]")
                     # print(op.name)
                     # print(op.location)
                     # print(op.input_tensors)
