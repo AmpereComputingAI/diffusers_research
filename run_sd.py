@@ -760,7 +760,9 @@ class Graph:
         #codes = [str(i) for i in range(10000)]
         occupied_codes = []
 
-        def __init__(self, dependants):
+        def __init__(self, name, location, dependants):
+            self.name = name
+            self.location = location
             self.dependants = set([dep for dep in dependants])
             self.done = set()
             self.code = None
@@ -799,7 +801,7 @@ class Graph:
         if tensor_hash in self.vars.keys():
             self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
         else:
-            self.vars[tensor_hash] = self.Variable(op.dependants[tensor_hash])
+            self.vars[tensor_hash] = self.Variable(op.__class__.__name__, op.location, op.dependants[tensor_hash])
         return self.vars[tensor_hash].code
 
     def print(self):
@@ -831,6 +833,8 @@ class Graph:
 
         print(f"Outstanding vars: {len(self.vars)}")
         for var in self.vars.values():
+            print(var.name)
+            print(var.location)
             print(var.dependants)
             print(var.done)
 
