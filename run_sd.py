@@ -709,7 +709,13 @@ class Graph:
         while len(ops) > 0:
             for i, op in enumerate(ops):
                 if all([dep in processed_ops for dep in op.dependencies]):
-                    print(op.location)
+                    skip = False
+                    for tensor_hash in op.output_tensors:
+                        if tensor_hash in self.vars:
+                            skip = True
+                    if skip:
+                        continue
+                    #print(op.location)
                     inputs = ", ".join([self.get_var(tensor_hash, op) for tensor_hash in op.input_tensors])
 
                     outputs = [self.new_var(tensor_hash, op) for tensor_hash in op.output_tensors]
