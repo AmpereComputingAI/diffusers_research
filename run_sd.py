@@ -504,6 +504,7 @@ class Graph:
         # if tensor_hash in self.vars.keys():
         #     self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
         #     self.vars[tensor_hash].latest_call = op.location
+        assert tensor_hash not in self.vars
         if len(op.dependants[tensor_hash]) > 0:
             self.vars[tensor_hash] = self.Variable(op.location, op.dependants[tensor_hash])
         else:
@@ -526,6 +527,10 @@ class Graph:
                     # print(op.name)
                     # print(op.location)
                     # print(self.vars)
+                    for tensor in op.output_tensors:
+                        if tensor in self.vars:
+                            if tensor not in op.input_tensors or len(self.vars[tensor].dependants) > 1:
+                                continue
                     inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
                     outputs = [self.new_var(tensor, op) for tensor in op.output_tensors]
                     if len(outputs) > 0:
