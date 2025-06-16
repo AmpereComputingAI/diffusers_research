@@ -681,8 +681,8 @@ class Graph:
     def __init__(self, ops, preloaded_tensors):
         self.vars = {}
         self.ops = ops
-        self.preloaded_tensors = preloaded_tensors
-        tensor_map = {tensor.output_tensors[0]: tensor for tensor in self.preloaded_tensors}
+        self.preloaded_tensors = {tensor.output_tensors[0]: tensor for tensor in preloaded_tensors}
+        tensor_map = {tensor.output_tensors[0]: tensor for tensor in preloaded_tensors}
         for op in self.ops:
             # print("------")
             # print(op.name)
@@ -771,7 +771,7 @@ class Graph:
                 sd
             x = len(processed_ops)
             for i, op in enumerate(ops):
-                if all([dep in processed_ops or dep in self.preloaded_tensors for dep in op.dependencies]):
+                if all([dep in processed_ops or dep in self.preloaded_tensors.values() for dep in op.dependencies]):
                     # skip = False
                     # for tensor_hash in op.output_tensors:
                     #     if tensor_hash in self.vars:
@@ -779,7 +779,8 @@ class Graph:
                     # if skip:
                     #     continue
                     #print(op.location)
-                    inputs = ", ".join([self.get_var(tensor_hash, op) for tensor_hash in op.input_tensors])
+                    inputs = ", ".join([self.get_var(tensor_hash, op) for tensor_hash in op.input_tensors
+                                        if tensor_hash not in self.preloaded_tensors.keys()])
 
                     outputs = [self.new_var(tensor_hash, op) for tensor_hash in op.output_tensors]
                     if len(outputs) > 0:
