@@ -756,7 +756,7 @@ class Graph:
         return self.vars[tensor_hash].code
 
     def print(self):
-        processed_ops = set()
+        processed_ops = []
         ops = self.ops.copy()
         while len(ops) > 0:
             for i, op in enumerate(ops):
@@ -777,7 +777,7 @@ class Graph:
                         outputs = ""
 
                     print(f"{outputs}{op.__class__.__name__}({inputs})")
-                    processed_ops.add(ops.pop(i))
+                    processed_ops.append(ops.pop(i))
                     break
 
 
