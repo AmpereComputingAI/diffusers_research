@@ -501,10 +501,10 @@ class Graph:
                 self.free_code(self.code)
 
     def new_var(self, tensor_hash, op):
-        if tensor_hash in self.vars.keys():
-            self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
-            self.vars[tensor_hash].latest_call = op.location
-        elif len(op.dependants[tensor_hash]) > 0:
+        # if tensor_hash in self.vars.keys():
+        #     self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
+        #     self.vars[tensor_hash].latest_call = op.location
+        if len(op.dependants[tensor_hash]) > 0:
             self.vars[tensor_hash] = self.Variable(op.location, op.dependants[tensor_hash])
         else:
             return "_"
