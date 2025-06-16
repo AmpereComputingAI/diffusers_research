@@ -764,9 +764,10 @@ class Graph:
             print(len(processed_ops))
             print(len(ops))
             if len(processed_ops) == x:
-                for dep in ops[0]:
+                for dep in ops[0].dependencies:
                     if dep not in processed_ops:
                         print(dep)
+                        print(dep.dependencies)
                 sd
             x = len(processed_ops)
             for i, op in enumerate(ops):
