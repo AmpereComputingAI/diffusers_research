@@ -474,7 +474,8 @@ class Graph:
         codes = list(string.ascii_uppercase)
         occupied_codes = []
 
-        def __init__(self, dependants):
+        def __init__(self, location, dependants):
+            self.latest_call = location
             self.dependants = [dep for dep in dependants]
             self.code = None
             self.get_code()
@@ -499,11 +500,12 @@ class Graph:
             if len(self.dependants) == 0:
                 self.free_code(self.code)
 
-    def new_var(self, tensor_hash, dependants):
+    def new_var(self, tensor_hash, op):
         if tensor_hash in self.vars.keys():
-            self.vars[tensor_hash].add_dependants(dependants)
-        elif len(dependants) > 0:
-            self.vars[tensor_hash] = self.Variable(dependants)
+            self.vars[tensor_hash].add_dependants(op.dependants[tensor_hash])
+            self.vars[tensor_hash].latest_call = op.location
+        elif len(op.dependants[tensor_hash]) > 0:
+            self.vars[tensor_hash] = self.Variable(op.location, op.dependants[tensor_hash])
         else:
             return "_"
         return self.vars[tensor_hash].code
@@ -525,7 +527,7 @@ class Graph:
                     # print(op.location)
                     # print(self.vars)
                     inputs = ", ".join([self.get_var(tensor, op) for tensor in op.input_tensors])
-                    outputs = [self.new_var(tensor, op.dependants[tensor]) for tensor in op.output_tensors]
+                    outputs = [self.new_var(tensor, op) for tensor in op.output_tensors]
                     if len(outputs) > 0:
                         outputs = ", ".join(outputs) + " = "
                     else:
@@ -538,7 +540,7 @@ class Graph:
                     processed.append(op)
         print(f"\nVars left out: {len(self.vars)}")
         for var in self.vars.values():
-            print(var.code)
+            print(var.latest_call)
 
 
 class Tracer:
