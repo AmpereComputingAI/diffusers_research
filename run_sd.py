@@ -771,7 +771,7 @@ class Graph:
                 sd
             x = len(processed_ops)
             for i, op in enumerate(ops):
-                if all([dep in processed_ops for dep in op.dependencies]):
+                if all([dep in processed_ops or dep in self.preloaded_tensors for dep in op.dependencies]):
                     # skip = False
                     # for tensor_hash in op.output_tensors:
                     #     if tensor_hash in self.vars:
