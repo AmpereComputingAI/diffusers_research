@@ -817,7 +817,8 @@ class Graph:
                     inputs = ", ".join([self.get_var(tensor_hash, op) for tensor_hash in op.input_tensors
                                         if tensor_hash not in self.preloaded_tensors.keys()])
 
-                    outputs = [self.new_var(tensor_hash, op) for tensor_hash in op.output_tensors]
+                    outputs = [self.new_var(tensor_hash, op) for tensor_hash in op.output_tensors
+                               if len(op.dependants) > 0]
                     if len(outputs) > 0:
                         outputs = ", ".join(outputs) + " = "
                     else:
