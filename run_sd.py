@@ -761,7 +761,8 @@ class Graph:
         occupied_codes = []
 
         def __init__(self, dependants):
-            self.dependants = [dep for dep in dependants]
+            self.dependants = set([dep for dep in dependants])
+            self.done = set()
             self.code = None
             self.get_code()
 
@@ -778,11 +779,11 @@ class Graph:
             self.occupied_codes.remove(code)
 
         def add_dependants(self, dependants):
-            self.dependants += [dep for dep in dependants]
+            self.dependants = self.dependants.union(set([dep for dep in dependants]))
 
         def remove_dependant(self, caller):
-            self.dependants.remove(caller)
-            if len(self.dependants) == 0:
+            self.done.add(caller)
+            if len(self.dependants) == len(self.done):
                 self.free_code(self.code)
                 return True
             else:
