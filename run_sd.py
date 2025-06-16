@@ -512,7 +512,11 @@ class Graph:
         return self.vars[tensor_hash].code
 
     def get_var(self, tensor_hash, caller):
-        self.vars[tensor_hash].remove_dependant(caller)
+        try:
+            self.vars[tensor_hash].remove_dependant(caller)
+        except ValueError as e:
+            print(caller.location)
+            raise e
         code = self.vars[tensor_hash].code
         if len(self.vars[tensor_hash].dependants) == 0:
             self.vars.pop(tensor_hash)
